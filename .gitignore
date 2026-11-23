@@ -1,0 +1,18 @@
+# secrets
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# large local artifacts (data, caches, checkpoints) live outside git
+/data/
+runs/*/checkpoints/
+runs/*/cache/
+*.safetensors
+*.npy
+*.npz
+*.arrow
+*.parquet
