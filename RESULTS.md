@@ -4,6 +4,14 @@ Hardware/runtime for all rows: M1 Max (24-core GPU), 64 GB, macOS 26.5, mlx 0.32
 mlx-vlm 0.8.1, `thinkingmachines/Inkling-2-Mini` @ `7a67ae2`, native NVFP4/MXFP8 target,
 BF16 DSpark. Run artifacts live under [`runs/`](runs/).
 
+Background load during these runs: Unsloth Studio's `llama-server` (Inkling 2 Mini GGUF
+Q4_K_XL) stayed loaded but **idle** the whole time. Its last request finished at 23:15 on
+2026-11-23; the first run here started at 23:26. It held ~12 GB plus a 16 GB mmapped GGUF,
+and swap stayed at ~9 GB. An idle server takes no GPU time, and mlx-vlm wires model memory
+during generation, so timings were stable: no-spec decode was 18.29 ± 0.10 tok/s (CV 0.6%)
+over 24 runs, with flat swap across each run. Acceptance, parity and data numbers don't depend on
+timing. From now on, `env.json` records any other model servers and warns when they are present.
+
 ## Stock DSpark vs no speculation (short coding prompts)
 
 6 single-turn coding prompts, 256 generated tokens, reasoning effort `low`, 2 repeats,

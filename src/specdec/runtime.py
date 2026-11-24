@@ -45,6 +45,11 @@ def env_info(model_id: str = DEFAULT_MODEL) -> dict[str, Any]:
     except (subprocess.CalledProcessError, FileNotFoundError):
         chip = platform.processor()
     info = mx.device_info()
+    servers = other_model_servers()
+    if servers:
+        print(f"[env] WARNING: other model servers running: {servers}. Unload them for clean "
+              "timings (mlx-vlm wires our weights during generation, but not teacher passes).",
+              file=sys.stderr)
     return {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "git_sha": _git("rev-parse", "HEAD"),
@@ -59,7 +64,34 @@ def env_info(model_id: str = DEFAULT_MODEL) -> dict[str, Any]:
         "max_working_set_gb": round(info.get("max_recommended_working_set_size", 0) / 2**30, 1),
         "model": model_id,
         "model_revision": snapshot.name,
+        "swap_used_mb": swap_used_mb(),
+        "other_model_servers": servers,
     }
+
+
+_SERVER_EXES = {"llama-server", "ollama", "vllm", "LM Studio", "omlx"}
+_SERVER_MODULES = ("mlx_lm.server", "mlx_vlm.server")
+
+
+def other_model_servers() -> list[dict[str, Any]]:
+    """Other local LLM servers. An idle one still holds memory; a busy one takes GPU time."""
+    try:
+        out = subprocess.check_output(["ps", "-axo", "pid=,command="], text=True)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return []
+    found = []
+    for line in out.splitlines():
+        pid, _, cmd = line.strip().partition(" ")
+        exe = Path(cmd.split(" --")[0].split(" -")[0]).name
+        if exe not in _SERVER_EXES and not any(m in cmd for m in _SERVER_MODULES):
+            continue
+        try:  # RSS misses Metal buffers; footprint counts them (and compressed pages).
+            fp = subprocess.check_output(["footprint", "-p", pid], text=True, stderr=subprocess.DEVNULL)
+            footprint = fp.split("Footprint:")[1].split("(")[0].strip()
+        except (subprocess.CalledProcessError, FileNotFoundError, IndexError):
+            footprint = None
+        found.append({"pid": int(pid), "exe": exe, "footprint": footprint})
+    return found
 
 
 def gb(nbytes: int) -> float:
