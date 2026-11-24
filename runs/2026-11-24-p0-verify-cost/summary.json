@@ -1,0 +1,129 @@
+{
+  "env": {
+    "timestamp": "2026-11-24T00:25:03+0100",
+    "git_sha": "adb26f9779c26697b21ab1daca9bfcd9d19b1817",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb_start": 9044.88,
+    "swap_used_mb_end": 9036.88
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "acceptance": "runs/2026-11-23-p0-verify/summary.json",
+    "depth": 1024,
+    "repeats": 15,
+    "out": "runs/2026-11-24-p0-verify-cost"
+  },
+  "timings_ms_median_min": {
+    "depth": 1024,
+    "t_ver_1": [
+      53.08774998411536,
+      52.85983392968774
+    ],
+    "t_ver_2": [
+      119.98704099096358,
+      119.54316613264382
+    ],
+    "t_ver_3": [
+      126.58970803022385,
+      125.54995808750391
+    ],
+    "t_ver_4": [
+      138.68483412079513,
+      135.18529199063778
+    ],
+    "t_ver_5": [
+      151.16333309561014,
+      147.39987486973405
+    ],
+    "t_ver_6": [
+      155.54604190401733,
+      154.5279158744961
+    ],
+    "t_ver_7": [
+      167.20687481574714,
+      163.71408407576382
+    ],
+    "t_ver_8": [
+      174.44987501949072,
+      170.98450008779764
+    ],
+    "t_draft_2": [
+      11.50820916518569,
+      11.415040818974376
+    ],
+    "t_draft_4": [
+      20.011499989777803,
+      19.641875056549907
+    ],
+    "t_draft_8": [
+      21.887000184506178,
+      21.80716604925692
+    ],
+    "t_dec": [
+      63.073124969378114,
+      61.15962495096028
+    ]
+  },
+  "cost_model": [
+    {
+      "block": 2,
+      "E_tokens": 1.777,
+      "round_ms": 131.5,
+      "pred_speedup": 0.852,
+      "breakeven_tokens": 2.08
+    },
+    {
+      "block": 3,
+      "E_tokens": 2.386,
+      "round_ms": 138.1,
+      "pred_speedup": 1.09,
+      "breakeven_tokens": 2.19
+    },
+    {
+      "block": 4,
+      "E_tokens": 2.861,
+      "round_ms": 158.7,
+      "pred_speedup": 1.137,
+      "breakeven_tokens": 2.52
+    },
+    {
+      "block": 5,
+      "E_tokens": 3.23,
+      "round_ms": 171.2,
+      "pred_speedup": 1.19,
+      "breakeven_tokens": 2.71
+    },
+    {
+      "block": 6,
+      "E_tokens": 3.525,
+      "round_ms": 175.6,
+      "pred_speedup": 1.266,
+      "breakeven_tokens": 2.78
+    },
+    {
+      "block": 7,
+      "E_tokens": 3.754,
+      "round_ms": 189.1,
+      "pred_speedup": 1.252,
+      "breakeven_tokens": 3.0
+    },
+    {
+      "block": 8,
+      "E_tokens": 3.905,
+      "round_ms": 196.3,
+      "pred_speedup": 1.254,
+      "breakeven_tokens": 3.11
+    }
+  ]
+}

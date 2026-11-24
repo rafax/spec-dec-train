@@ -1,0 +1,167 @@
+{
+  "env": {
+    "timestamp": "2026-11-24T16:47:38+0100",
+    "git_sha": "41ce96ac3e2f48bb96549e8d68d9aebb6d23cc8e",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 2841.0,
+    "other_model_servers": []
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "depth": 1024,
+    "repeats": 15,
+    "out": "runs/2026-11-24-p0-verify-profile"
+  },
+  "ms": {
+    "full": {
+      "1": {
+        "ms": 52.46,
+        "build_ms": 44.43
+      },
+      "2": {
+        "ms": 122.0,
+        "build_ms": 105.24
+      },
+      "3": {
+        "ms": 127.67,
+        "build_ms": 111.32
+      },
+      "4": {
+        "ms": 137.11,
+        "build_ms": 119.21
+      },
+      "8": {
+        "ms": 174.01,
+        "build_ms": 156.24
+      }
+    },
+    "no_moe": {
+      "1": {
+        "ms": 29.58,
+        "build_ms": 21.85
+      },
+      "2": {
+        "ms": 85.28,
+        "build_ms": 64.02
+      },
+      "3": {
+        "ms": 83.67,
+        "build_ms": 67.67
+      },
+      "4": {
+        "ms": 91.72,
+        "build_ms": 67.72
+      },
+      "8": {
+        "ms": 99.74,
+        "build_ms": 74.64
+      }
+    },
+    "no_attn": {
+      "1": {
+        "ms": 34.77,
+        "build_ms": 25.79
+      },
+      "2": {
+        "ms": 61.15,
+        "build_ms": 44.96
+      },
+      "3": {
+        "ms": 70.47,
+        "build_ms": 54.15
+      },
+      "4": {
+        "ms": 79.85,
+        "build_ms": 62.48
+      },
+      "8": {
+        "ms": 116.38,
+        "build_ms": 96.29
+      }
+    },
+    "no_moe_attn": {
+      "1": {
+        "ms": 12.78,
+        "build_ms": 5.47
+      },
+      "2": {
+        "ms": 19.72,
+        "build_ms": 6.34
+      },
+      "3": {
+        "ms": 18.56,
+        "build_ms": 5.49
+      },
+      "4": {
+        "ms": 19.14,
+        "build_ms": 7.37
+      },
+      "8": {
+        "ms": 20.06,
+        "build_ms": 5.99
+      }
+    },
+    "moe_grouped": {
+      "1": {
+        "ms": 19.13
+      },
+      "2": {
+        "ms": 35.56
+      },
+      "3": {
+        "ms": 46.24
+      },
+      "4": {
+        "ms": 57.06
+      },
+      "8": {
+        "ms": 95.98
+      }
+    },
+    "moe_masked": {
+      "1": {
+        "ms": 19.22
+      },
+      "2": {
+        "ms": 42.09
+      },
+      "3": {
+        "ms": 57.12
+      },
+      "4": {
+        "ms": 72.84
+      },
+      "8": {
+        "ms": 138.16
+      }
+    },
+    "moe_gather": {
+      "1": {
+        "ms": 18.53
+      },
+      "2": {
+        "ms": 37.75
+      },
+      "3": {
+        "ms": 52.97
+      },
+      "4": {
+        "ms": 66.19
+      },
+      "8": {
+        "ms": 127.66
+      }
+    }
+  }
+}

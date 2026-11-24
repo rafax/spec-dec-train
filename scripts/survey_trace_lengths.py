@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import multiprocessing
 import random
 import statistics
 import sys
@@ -97,6 +98,34 @@ def summarize_caps(recs):
         )
 
 
+_TOKENIZER = None
+
+
+def _init_worker(tokenizer_path):
+    global _TOKENIZER
+    _TOKENIZER = AutoTokenizer.from_pretrained(tokenizer_path)
+
+
+def process_file(path: str, raw_dir: Path, max_rows: int) -> tuple[str, list[dict], int, int]:
+    local = hf_hub_download(REPO, path, repo_type="dataset", local_dir=raw_dir)
+    table = pq.read_table(local)
+    idx = list(range(table.num_rows))
+    random.Random(path).shuffle(idx)
+    recs, errors = [], 0
+    for i in idx[:max_rows]:
+        row = table.slice(i, 1).to_pylist()[0]
+        try:
+            rec = survey_row(_TOKENIZER, row)
+        except (RenderError, KeyError, TypeError, ValueError) as exc:
+            errors += 1
+            if errors <= 3:
+                print(f"  skip {path}#{i}: {str(exc)[:120]}", file=sys.stderr)
+            continue
+        rec.update(file=path, row=i, group=group_of(path))
+        recs.append(rec)
+    return path, recs, table.num_rows, errors
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--files-json", type=Path, required=True, help="JSON list of repo-relative parquet paths")
@@ -104,34 +133,35 @@ def main():
     ap.add_argument("--max-rows-per-file", type=int, default=400)
     ap.add_argument("--tokenizer", default="thinkingmachines/Inkling-2-Mini")
     ap.add_argument("--out", type=Path, default=Path("data/surveys/open_swe_v2.jsonl"))
+    ap.add_argument("--workers", type=int, default=1)
+    ap.add_argument("--resume", action="store_true", help="append, skipping files already in --out")
+    ap.add_argument("--summarize-only", action="store_true")
     args = ap.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
     paths = json.loads(args.files_json.read_text())
     args.out.parent.mkdir(parents=True, exist_ok=True)
-    all_recs, by_group, by_agent = [], collections.defaultdict(list), collections.defaultdict(list)
-    with args.out.open("w") as out:
-        for path in paths:
-            local = hf_hub_download(REPO, path, repo_type="dataset", local_dir=args.raw_dir)
-            table = pq.read_table(local)
-            idx = list(range(table.num_rows))
-            random.Random(path).shuffle(idx)
-            errors = 0
-            for i in idx[: args.max_rows_per_file]:
-                row = table.slice(i, 1).to_pylist()[0]
-                try:
-                    rec = survey_row(tokenizer, row)
-                except (RenderError, KeyError, TypeError, ValueError) as exc:
-                    errors += 1
-                    if errors <= 3:
-                        print(f"  skip {path}#{i}: {str(exc)[:120]}", file=sys.stderr)
-                    continue
-                rec.update(file=path, row=i, group=group_of(path))
-                out.write(json.dumps(rec) + "\n")
-                all_recs.append(rec)
-                by_group[rec["group"]].append(rec)
-                by_agent[rec["group"].split("/")[0]].append(rec)
-            print(f"  {path}: {table.num_rows} rows, kept {min(len(idx), args.max_rows_per_file) - errors}, errors {errors}", file=sys.stderr)
+    done = set()
+    if (args.resume or args.summarize_only) and args.out.exists():
+        done = {json.loads(line)["file"] for line in args.out.read_text().splitlines() if line.strip()}
+    todo = [] if args.summarize_only else [p for p in paths if p not in done]
+    print(f"{len(done)} files already surveyed, {len(todo)} to go", file=sys.stderr)
+
+    with args.out.open("a" if args.resume else ("r" if args.summarize_only else "w")) as out:
+        if todo:
+            with multiprocessing.Pool(args.workers, _init_worker, (args.tokenizer,)) as pool:
+                jobs = [pool.apply_async(process_file, (p, args.raw_dir, args.max_rows_per_file)) for p in todo]
+                for job in jobs:
+                    path, recs, n_rows, errors = job.get()
+                    for rec in recs:
+                        out.write(json.dumps(rec) + "\n")
+                    out.flush()
+                    print(f"  {path}: {n_rows} rows, kept {len(recs)}, errors {errors}", file=sys.stderr)
+
+    all_recs = [json.loads(line) for line in args.out.read_text().splitlines() if line.strip()]
+    by_group, by_agent = collections.defaultdict(list), collections.defaultdict(list)
+    for rec in all_recs:
+        by_group[rec["group"]].append(rec)
+        by_agent[rec["group"].split("/")[0]].append(rec)
 
     print("\nPer group (tokens under Inkling template; % of traces that fit whole at each cap)")
     for g in sorted(by_group):

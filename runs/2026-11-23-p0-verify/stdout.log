@@ -1,0 +1,63 @@
+tee: runs/p0-verify.log: No such file or directory
+{
+  "timestamp": "2026-11-23T23:26:44+0100",
+  "git_sha": "adb26f9779c26697b21ab1daca9bfcd9d19b1817",
+  "git_dirty": false,
+  "python": "3.13.17",
+  "mlx": "0.32.4",
+  "mlx_vlm": "0.8.1",
+  "macos": "26.5",
+  "chip": "Apple M1 Max",
+  "gpu": "Apple M1 Max",
+  "memory_gb": 64.0,
+  "max_working_set_gb": 51.8,
+  "model": "thinkingmachines/Inkling-2-Mini",
+  "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6"
+}
+target loaded: {'load_s': 7.4, 'active_gb': 18.19, 'peak_gb': 18.9}
+drafter loaded: {'load_s': 0.5, 'kind': 'dflash', 'added_gb': 0.59}
+py_duration  prompt= 103 gen=257 parity=DIVERGE@37 | no-spec  18.3 tok/s ttft  0.77s | DSpark T0  16.6 tok/s tau 3.368 | T0.6  16.9 tok/s tau 3.446 | peak 20.96 GB
+py_bugfix    prompt= 156 gen=257 parity=DIVERGE@34 | no-spec  17.8 tok/s ttft  0.94s | DSpark T0  18.8 tok/s tau 3.821 | T0.6  13.8 tok/s tau 2.865 | peak 21.12 GB
+ts_lru       prompt=  94 gen=257 parity=DIVERGE@89 | no-spec  18.3 tok/s ttft  0.77s | DSpark T0  21.6 tok/s tau 4.491 | T0.6  21.6 tok/s tau 4.491 | peak 20.94 GB
+go_ctx       prompt= 171 gen=257 parity=DIVERGE@57 | no-spec  13.0 tok/s ttft  1.05s | DSpark T0  16.8 tok/s tau 3.413 | T0.6  12.8 tok/s tau 3.012 | peak 21.18 GB
+sql_window   prompt= 109 gen=257 parity=DIVERGE@11 | no-spec  10.3 tok/s ttft  2.52s | DSpark T0  10.7 tok/s tau 3.938 | T0.6  15.9 tok/s tau 3.282 | peak 20.99 GB
+rust_parser  prompt=  81 gen=257 parity=OK | no-spec  18.4 tok/s ttft  0.72s | DSpark T0  12.3 tok/s tau 4.267 | T0.6   8.7 tok/s tau 3.459 | peak 20.91 GB
+{
+  "greedy_parity": "1/6",
+  "median": {
+    "nospec_t0": {
+      "decode_tps": 18.07,
+      "e2e_tps": 17.11,
+      "ttft_s": 0.86,
+      "peak_gb": 20.96
+    },
+    "dspark_t0": {
+      "decode_tps": 16.69,
+      "e2e_tps": 15.9,
+      "ttft_s": 0.8,
+      "peak_gb": 20.98
+    },
+    "dspark_t06": {
+      "decode_tps": 14.88,
+      "e2e_tps": 14.28,
+      "ttft_s": 0.81,
+      "peak_gb": 20.98
+    }
+  },
+  "tau": {
+    "dspark_t0": 3.88,
+    "dspark_t06": 3.364
+  },
+  "per_position_t0": [
+    0.777,
+    0.609,
+    0.475,
+    0.369,
+    0.295,
+    0.229,
+    0.151
+  ],
+  "speedup_decode_t0": 0.92
+}
+
+[exited with code 1]

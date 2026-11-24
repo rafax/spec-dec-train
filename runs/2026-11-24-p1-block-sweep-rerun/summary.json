@@ -1,0 +1,161 @@
+{
+  "env": {
+    "timestamp": "2026-11-24T15:14:34+0100",
+    "git_sha": "41ce96ac3e2f48bb96549e8d68d9aebb6d23cc8e",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 2913.06,
+    "other_model_servers": [],
+    "swap_used_mb_start": 2913.06,
+    "swap_used_mb_end": 2865.0
+  },
+  "load": {
+    "load_s": 2.6,
+    "active_gb": 18.19,
+    "peak_gb": 18.9
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "conditions": [
+      "nospec",
+      "dspark@4",
+      "dspark@6",
+      "dspark"
+    ],
+    "temps": [
+      0.0,
+      0.6
+    ],
+    "repeats": 2,
+    "max_tokens": 256,
+    "reasoning_effort": "low",
+    "prefill_step_size": 256,
+    "out": "runs/2026-11-24-p1-block-sweep-rerun"
+  },
+  "summary": {
+    "T=0.0": {
+      "nospec": {
+        "n": 12,
+        "decode_tps": 18.45,
+        "e2e_tps": 17.48,
+        "ttft_s": 0.794,
+        "peak_gb": 21.16
+      },
+      "dspark@4": {
+        "n": 12,
+        "decode_tps": 17.12,
+        "e2e_tps": 16.37,
+        "ttft_s": 0.746,
+        "peak_gb": 21.18,
+        "tau": 2.955,
+        "paired_decode_speedup": 0.934,
+        "per_position": [
+          0.796,
+          0.632,
+          0.511
+        ]
+      },
+      "dspark@6": {
+        "n": 12,
+        "decode_tps": 17.17,
+        "e2e_tps": 16.33,
+        "ttft_s": 0.744,
+        "peak_gb": 21.19,
+        "tau": 3.304,
+        "paired_decode_speedup": 0.929,
+        "per_position": [
+          0.767,
+          0.594,
+          0.472,
+          0.353,
+          0.277
+        ]
+      },
+      "dspark": {
+        "n": 12,
+        "decode_tps": 18.67,
+        "e2e_tps": 17.69,
+        "ttft_s": 0.745,
+        "peak_gb": 21.19,
+        "tau": 3.88,
+        "paired_decode_speedup": 1.012,
+        "per_position": [
+          0.777,
+          0.609,
+          0.475,
+          0.369,
+          0.295,
+          0.229,
+          0.151
+        ]
+      }
+    },
+    "T=0.6": {
+      "nospec": {
+        "n": 12,
+        "decode_tps": 18.31,
+        "e2e_tps": 17.4,
+        "ttft_s": 0.801,
+        "peak_gb": 21.16
+      },
+      "dspark@4": {
+        "n": 12,
+        "decode_tps": 15.42,
+        "e2e_tps": 14.77,
+        "ttft_s": 0.745,
+        "peak_gb": 21.19,
+        "tau": 2.704,
+        "paired_decode_speedup": 0.843,
+        "per_position": [
+          0.765,
+          0.573,
+          0.417
+        ]
+      },
+      "dspark@6": {
+        "n": 12,
+        "decode_tps": 16.66,
+        "e2e_tps": 15.96,
+        "ttft_s": 0.75,
+        "peak_gb": 21.19,
+        "tau": 3.248,
+        "paired_decode_speedup": 0.909,
+        "per_position": [
+          0.773,
+          0.554,
+          0.414,
+          0.304,
+          0.22
+        ]
+      },
+      "dspark": {
+        "n": 12,
+        "decode_tps": 15.36,
+        "e2e_tps": 14.75,
+        "ttft_s": 0.744,
+        "peak_gb": 21.19,
+        "tau": 3.235,
+        "paired_decode_speedup": 0.839,
+        "per_position": [
+          0.73,
+          0.523,
+          0.381,
+          0.275,
+          0.198,
+          0.143,
+          0.115
+        ]
+      }
+    }
+  }
+}

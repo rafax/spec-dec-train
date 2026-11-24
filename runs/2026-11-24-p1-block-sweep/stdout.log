@@ -1,0 +1,212 @@
+rep0 T=0.0 py_duration  nospec     decode  18.4 tok/s e2e  17.5 tau -
+rep0 T=0.0 py_duration  dspark@4   decode  16.9 tok/s e2e  16.2 tau 2.898
+rep0 T=0.0 py_duration  dspark@6   decode  15.9 tok/s e2e  15.2 tau 3.048
+rep0 T=0.0 py_duration  dspark     decode  16.5 tok/s e2e  15.8 tau 3.368
+rep0 T=0.0 py_bugfix    nospec     decode  18.3 tok/s e2e  17.3 tau -
+rep0 T=0.0 py_bugfix    dspark@4   decode  15.8 tok/s e2e  15.0 tau 2.723
+rep0 T=0.0 py_bugfix    dspark@6   decode  17.4 tok/s e2e  16.4 tau 3.325
+rep0 T=0.0 py_bugfix    dspark     decode  18.6 tok/s e2e  17.6 tau 3.821
+rep0 T=0.0 ts_lru       nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep0 T=0.0 ts_lru       dspark@4   decode  18.9 tok/s e2e  18.0 tau 3.241
+rep0 T=0.0 ts_lru       dspark@6   decode  22.1 tok/s e2e  20.9 tau 4.267
+rep0 T=0.0 ts_lru       dspark     decode  21.7 tok/s e2e  20.6 tau 4.491
+rep0 T=0.0 go_ctx       nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep0 T=0.0 go_ctx       dspark@4   decode  15.5 tok/s e2e  14.8 tau 2.667
+rep0 T=0.0 go_ctx       dspark@6   decode  16.1 tok/s e2e  15.3 tau 3.036
+rep0 T=0.0 go_ctx       dspark     decode  16.6 tok/s e2e  15.7 tau 3.413
+rep0 T=0.0 sql_window   nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep0 T=0.0 sql_window   dspark@4   decode  17.4 tok/s e2e  16.7 tau 3.012
+rep0 T=0.0 sql_window   dspark@6   decode  17.0 tok/s e2e  16.3 tau 3.282
+rep0 T=0.0 sql_window   dspark     decode  19.0 tok/s e2e  18.1 tau 3.938
+rep0 T=0.0 rust_parser  nospec     decode  18.4 tok/s e2e  17.5 tau -
+rep0 T=0.0 rust_parser  dspark@4   decode  17.8 tok/s e2e  17.1 tau 3.048
+rep0 T=0.0 rust_parser  dspark@6   decode  19.6 tok/s e2e  18.7 tau 3.765
+rep0 T=0.0 rust_parser  dspark     decode  20.5 tok/s e2e  19.5 tau 4.267
+rep0 T=0.6 py_duration  nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep0 T=0.6 py_duration  dspark@4   decode  16.3 tok/s e2e  15.7 tau 2.802
+rep0 T=0.6 py_duration  dspark@6   decode  13.9 tok/s e2e  13.4 tau 2.667
+rep0 T=0.6 py_duration  dspark     decode  16.9 tok/s e2e  16.2 tau 3.507
+rep0 T=0.6 py_bugfix    nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep0 T=0.6 py_bugfix    dspark@4   decode  14.7 tok/s e2e  14.0 tau 2.535
+rep0 T=0.6 py_bugfix    dspark@6   decode  16.2 tok/s e2e  15.4 tau 3.072
+rep0 T=0.6 py_bugfix    dspark     decode  14.7 tok/s e2e  14.1 tau 3.048
+rep0 T=0.6 ts_lru       nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep0 T=0.6 ts_lru       dspark@4   decode  15.6 tok/s e2e  15.1 tau 2.684
+rep0 T=0.6 ts_lru       dspark@6   decode  16.8 tok/s e2e  16.1 tau 3.228
+rep0 T=0.6 ts_lru       dspark     decode  13.4 tok/s e2e  12.9 tau 2.772
+rep0 T=0.6 go_ctx       nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep0 T=0.6 go_ctx       dspark@4   decode  15.1 tok/s e2e  14.4 tau 2.576
+rep0 T=0.6 go_ctx       dspark@6   decode  17.7 tok/s e2e  16.7 tau 3.355
+rep0 T=0.6 go_ctx       dspark     decode  14.8 tok/s e2e  14.2 tau 3.084
+rep0 T=0.6 sql_window   nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep0 T=0.6 sql_window   dspark@4   decode  15.5 tok/s e2e  14.8 tau 2.667
+rep0 T=0.6 sql_window   dspark@6   decode  17.0 tok/s e2e  16.3 tau 3.282
+rep0 T=0.6 sql_window   dspark     decode  15.4 tok/s e2e  14.8 tau 3.188
+rep0 T=0.6 rust_parser  nospec     decode  18.2 tok/s e2e  17.4 tau -
+rep0 T=0.6 rust_parser  dspark@4   decode  18.1 tok/s e2e  17.4 tau 3.122
+rep0 T=0.6 rust_parser  dspark@6   decode  19.7 tok/s e2e  18.9 tau 3.821
+rep0 T=0.6 rust_parser  dspark     decode  19.4 tok/s e2e  18.6 tau 4.048
+rep1 T=0.0 py_duration  nospec     decode  18.4 tok/s e2e  17.4 tau -
+rep1 T=0.0 py_duration  dspark@4   decode  16.9 tok/s e2e  16.2 tau 2.898
+rep1 T=0.0 py_duration  dspark@6   decode  15.9 tok/s e2e  15.3 tau 3.048
+rep1 T=0.0 py_duration  dspark     decode  16.5 tok/s e2e  15.8 tau 3.368
+rep1 T=0.0 py_bugfix    nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep1 T=0.0 py_bugfix    dspark@4   decode  15.8 tok/s e2e  15.1 tau 2.723
+rep1 T=0.0 py_bugfix    dspark@6   decode  17.5 tok/s e2e  16.6 tau 3.325
+rep1 T=0.0 py_bugfix    dspark     decode  18.6 tok/s e2e  17.6 tau 3.821
+rep1 T=0.0 ts_lru       nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep1 T=0.0 ts_lru       dspark@4   decode  18.9 tok/s e2e  18.0 tau 3.241
+rep1 T=0.0 ts_lru       dspark@6   decode  22.1 tok/s e2e  20.9 tau 4.267
+rep1 T=0.0 ts_lru       dspark     decode  21.7 tok/s e2e  20.5 tau 4.491
+rep1 T=0.0 go_ctx       nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep1 T=0.0 go_ctx       dspark@4   decode  15.5 tok/s e2e  14.7 tau 2.667
+rep1 T=0.0 go_ctx       dspark@6   decode  16.1 tok/s e2e  15.2 tau 3.036
+rep1 T=0.0 go_ctx       dspark     decode  16.5 tok/s e2e  15.7 tau 3.413
+rep1 T=0.0 sql_window   nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep1 T=0.0 sql_window   dspark@4   decode  17.5 tok/s e2e  16.7 tau 3.012
+rep1 T=0.0 sql_window   dspark@6   decode  17.0 tok/s e2e  16.3 tau 3.282
+rep1 T=0.0 sql_window   dspark     decode  19.0 tok/s e2e  18.1 tau 3.938
+rep1 T=0.0 rust_parser  nospec     decode  18.3 tok/s e2e  17.5 tau -
+rep1 T=0.0 rust_parser  dspark@4   decode  17.8 tok/s e2e  17.1 tau 3.048
+rep1 T=0.0 rust_parser  dspark@6   decode  19.6 tok/s e2e  18.7 tau 3.765
+rep1 T=0.0 rust_parser  dspark     decode  20.5 tok/s e2e  19.5 tau 4.267
+rep1 T=0.6 py_duration  nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep1 T=0.6 py_duration  dspark@4   decode  16.1 tok/s e2e  15.5 tau 2.783
+rep1 T=0.6 py_duration  dspark@6   decode  17.1 tok/s e2e  16.3 tau 3.269
+rep1 T=0.6 py_duration  dspark     decode  16.8 tok/s e2e  16.1 tau 3.446
+rep1 T=0.6 py_bugfix    nospec     decode  18.2 tok/s e2e  17.1 tau -
+rep1 T=0.6 py_bugfix    dspark@4   decode  15.7 tok/s e2e  15.0 tau 2.723
+rep1 T=0.6 py_bugfix    dspark@6   decode  15.6 tok/s e2e  14.9 tau 2.977
+rep1 T=0.6 py_bugfix    dspark     decode  13.8 tok/s e2e  13.2 tau 2.865
+rep1 T=0.6 ts_lru       nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep1 T=0.6 ts_lru       dspark@4   decode  18.9 tok/s e2e  18.0 tau 3.241
+rep1 T=0.6 ts_lru       dspark@6   decode  22.0 tok/s e2e  20.8 tau 4.267
+rep1 T=0.6 ts_lru       dspark     decode  21.6 tok/s e2e  20.4 tau 4.491
+rep1 T=0.6 go_ctx       nospec     decode  18.1 tok/s e2e  17.1 tau -
+rep1 T=0.6 go_ctx       dspark@4   decode  16.3 tok/s e2e  15.5 tau 2.813
+rep1 T=0.6 go_ctx       dspark@6   decode  16.2 tok/s e2e  15.4 tau 3.084
+rep1 T=0.6 go_ctx       dspark     decode  14.5 tok/s e2e  13.9 tau 3.012
+rep1 T=0.6 sql_window   nospec     decode  18.3 tok/s e2e  17.4 tau -
+rep1 T=0.6 sql_window   dspark@4   decode  14.3 tok/s e2e  13.8 tau 2.452
+rep1 T=0.6 sql_window   dspark@6   decode  14.1 tok/s e2e  13.6 tau 2.713
+rep1 T=0.6 sql_window   dspark     decode  15.5 tok/s e2e  14.9 tau 3.282
+rep1 T=0.6 rust_parser  nospec     decode  18.6 tok/s e2e  17.8 tau -
+rep1 T=0.6 rust_parser  dspark@4   decode  15.1 tok/s e2e  14.6 tau 2.612
+rep1 T=0.6 rust_parser  dspark@6   decode  17.3 tok/s e2e  16.6 tau 3.325
+rep1 T=0.6 rust_parser  dspark     decode  16.5 tok/s e2e  15.9 tau 3.459
+{
+  "T=0.0": {
+    "nospec": {
+      "n": 12,
+      "decode_tps": 18.31,
+      "e2e_tps": 17.41,
+      "ttft_s": 0.783,
+      "peak_gb": 21.16
+    },
+    "dspark@4": {
+      "n": 12,
+      "decode_tps": 17.19,
+      "e2e_tps": 16.45,
+      "ttft_s": 0.736,
+      "peak_gb": 21.18,
+      "tau": 2.955,
+      "paired_decode_speedup": 0.938,
+      "per_position": [
+        0.796,
+        0.632,
+        0.511
+      ]
+    },
+    "dspark@6": {
+      "n": 12,
+      "decode_tps": 17.2,
+      "e2e_tps": 16.37,
+      "ttft_s": 0.736,
+      "peak_gb": 21.18,
+      "tau": 3.304,
+      "paired_decode_speedup": 0.939,
+      "per_position": [
+        0.767,
+        0.594,
+        0.472,
+        0.353,
+        0.277
+      ]
+    },
+    "dspark": {
+      "n": 12,
+      "decode_tps": 18.81,
+      "e2e_tps": 17.84,
+      "ttft_s": 0.735,
+      "peak_gb": 21.18,
+      "tau": 3.88,
+      "paired_decode_speedup": 1.031,
+      "per_position": [
+        0.777,
+        0.609,
+        0.475,
+        0.369,
+        0.295,
+        0.229,
+        0.151
+      ]
+    }
+  },
+  "T=0.6": {
+    "nospec": {
+      "n": 12,
+      "decode_tps": 18.27,
+      "e2e_tps": 17.38,
+      "ttft_s": 0.785,
+      "peak_gb": 21.16
+    },
+    "dspark@4": {
+      "n": 12,
+      "decode_tps": 15.66,
+      "e2e_tps": 15.01,
+      "ttft_s": 0.736,
+      "peak_gb": 21.19,
+      "tau": 2.704,
+      "paired_decode_speedup": 0.859,
+      "per_position": [
+        0.765,
+        0.573,
+        0.417
+      ]
+    },
+    "dspark@6": {
+      "n": 12,
+      "decode_tps": 16.93,
+      "e2e_tps": 16.21,
+      "ttft_s": 0.736,
+      "peak_gb": 21.19,
+      "tau": 3.248,
+      "paired_decode_speedup": 0.924,
+      "per_position": [
+        0.773,
+        0.554,
+        0.414,
+        0.304,
+        0.22
+      ]
+    },
+    "dspark": {
+      "n": 12,
+      "decode_tps": 15.46,
+      "e2e_tps": 14.86,
+      "ttft_s": 0.737,
+      "peak_gb": 21.19,
+      "tau": 3.235,
+      "paired_decode_speedup": 0.846,
+      "per_position": [
+        0.73,
+        0.523,
+        0.381,
+        0.275,
+        0.198,
+        0.143,
+        0.115
+      ]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+depth 1024: plain decode 62.5 ms/token (16.0 tok/s)
+  verify b=1:    56.0 ms  (0.90x decode)
+  verify b=2:   121.7 ms  (1.95x decode)
+  verify b=3:   127.6 ms  (2.04x decode)
+  verify b=4:   137.4 ms  (2.20x decode)
+  verify b=5:   150.2 ms  (2.40x decode)
+  verify b=6:   158.8 ms  (2.54x decode)
+  verify b=7:   167.3 ms  (2.68x decode)
+  verify b=8:   174.2 ms  (2.79x decode)
+  draft  b=2:    11.2 ms
+  draft  b=4:    19.8 ms
+  draft  b=8:    21.9 ms
+
+Predicted decode speedup with measured stock acceptance:
+  b=2: E[tokens/round]=1.78  round= 132.9 ms  -> 0.84x   (break-even needs 2.13 tokens/round)
+  b=3: E[tokens/round]=2.39  round= 138.8 ms  -> 1.07x   (break-even needs 2.22 tokens/round)
+  b=4: E[tokens/round]=2.86  round= 157.2 ms  -> 1.14x   (break-even needs 2.51 tokens/round)
+  b=5: E[tokens/round]=3.23  round= 170.0 ms  -> 1.19x   (break-even needs 2.72 tokens/round)
+  b=6: E[tokens/round]=3.52  round= 178.6 ms  -> 1.23x   (break-even needs 2.86 tokens/round)
+  b=7: E[tokens/round]=3.75  round= 189.3 ms  -> 1.24x   (break-even needs 3.03 tokens/round)
+  b=8: E[tokens/round]=3.90  round= 196.1 ms  -> 1.24x   (break-even needs 3.14 tokens/round)
