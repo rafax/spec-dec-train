@@ -66,6 +66,15 @@ def gb(nbytes: int) -> float:
     return round(nbytes / 2**30, 2)
 
 
+def swap_used_mb() -> float | None:
+    """macOS swap in use; timing runs record it because swapping wrecks throughput numbers."""
+    try:
+        out = subprocess.check_output(["sysctl", "-n", "vm.swapusage"], text=True)
+        return float(out.split("used =")[1].split("M")[0])
+    except (subprocess.CalledProcessError, FileNotFoundError, IndexError, ValueError):
+        return None
+
+
 def load_target(model_id: str = DEFAULT_MODEL):
     from mlx_vlm import load
 

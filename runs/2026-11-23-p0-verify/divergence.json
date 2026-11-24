@@ -1,0 +1,187 @@
+[
+  {
+    "id": "py_duration",
+    "position": 37,
+    "nospec_token": 149899,
+    "dspark_token": 150227,
+    "top5": [
+      [
+        150227,
+        " type",
+        -0.6659
+      ],
+      [
+        149899,
+        " with",
+        -0.7246
+      ],
+      [
+        150826,
+        " include",
+        -6.9611
+      ],
+      [
+        150735,
+        " including",
+        -7.8795
+      ],
+      [
+        194662,
+        " doct",
+        -8.552
+      ]
+    ],
+    "gap_top1_top2": 0.0588,
+    "nospec_vs_dspark_logit_gap": -0.0588,
+    "argmax_bulk": 150227,
+    "argmax_step": 150227
+  },
+  {
+    "id": "py_bugfix",
+    "position": 34,
+    "nospec_token": 163755,
+    "dspark_token": 160172,
+    "top5": [
+      [
+        163755,
+        " leaving",
+        -1.284
+      ],
+      [
+        160172,
+        " leaves",
+        -1.292
+      ],
+      [
+        149982,
+        " so",
+        -1.9117
+      ],
+      [
+        167618,
+        " fails",
+        -2.5213
+      ],
+      [
+        152548,
+        " doesn",
+        -3.061
+      ]
+    ],
+    "gap_top1_top2": 0.008,
+    "nospec_vs_dspark_logit_gap": 0.008,
+    "argmax_bulk": 163755,
+    "argmax_step": 160172
+  },
+  {
+    "id": "ts_lru",
+    "position": 89,
+    "nospec_token": 91,
+    "dspark_token": 196975,
+    "top5": [
+      [
+        196975,
+        " |",
+        -0.6579
+      ],
+      [
+        91,
+        "|",
+        -0.7299
+      ],
+      [
+        26,
+        ";",
+        -9.0719
+      ],
+      [
+        145038,
+        "...",
+        -17.9517
+      ],
+      [
+        150598,
+        " null",
+        -18.4102
+      ]
+    ],
+    "gap_top1_top2": 0.072,
+    "nospec_vs_dspark_logit_gap": -0.072,
+    "argmax_bulk": 196975,
+    "argmax_step": 196975
+  },
+  {
+    "id": "go_ctx",
+    "position": 57,
+    "nospec_token": 166910,
+    "dspark_token": 154001,
+    "top5": [
+      [
+        154001,
+        " Also",
+        -1.4552
+      ],
+      [
+        166910,
+        " Provide",
+        -1.5685
+      ],
+      [
+        149904,
+        " I",
+        -2.3069
+      ],
+      [
+        155242,
+        " Show",
+        -2.3877
+      ],
+      [
+        170248,
+        " Keep",
+        -2.58
+      ]
+    ],
+    "gap_top1_top2": 0.1133,
+    "nospec_vs_dspark_logit_gap": -0.1133,
+    "argmax_bulk": 154001,
+    "argmax_step": 154001
+  },
+  {
+    "id": "sql_window",
+    "position": 11,
+    "nospec_token": 149882,
+    "dspark_token": 152651,
+    "top5": [
+      [
+        152651,
+        " produce",
+        -1.3453
+      ],
+      [
+        149882,
+        " to",
+        -1.4833
+      ],
+      [
+        150893,
+        " answer",
+        -2.1193
+      ],
+      [
+        150684,
+        " provide",
+        -2.1349
+      ],
+      [
+        155262,
+        " compute",
+        -2.7092
+      ]
+    ],
+    "gap_top1_top2": 0.138,
+    "nospec_vs_dspark_logit_gap": -0.138,
+    "argmax_bulk": 152651,
+    "argmax_step": 152651
+  }
+]
