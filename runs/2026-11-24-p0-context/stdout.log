@@ -1,0 +1,70 @@
+loaded {'load_s': 3.6, 'active_gb': 18.19, 'peak_gb': 18.9}
+trace openhands/minimax_m25/swe-rebench-v2 #1060: 53113 tokens
+trace opencode/qwen38_flash_next/swe-rebench-v2/thinking-low #1011: 71140 tokens
+L=  2048 teacher   190.8 tok/s peak  23.3 GB feat    36.0 MB
+L=  2048 teacher   194.2 tok/s peak  23.2 GB feat    36.0 MB
+L=  4096 teacher   188.7 tok/s peak  23.4 GB feat    72.0 MB
+L=  4096 teacher   188.4 tok/s peak  23.4 GB feat    72.0 MB
+L=  8192 teacher   184.7 tok/s peak  23.5 GB feat   144.0 MB | prompt   5391 ttft   25.2s decode  17.9 ->  22.4 tok/s tau 7.375 peak 22.17 GB parity True
+L=  8192 teacher   184.3 tok/s peak  25.3 GB feat   144.0 MB
+L= 16384 teacher   180.1 tok/s peak  25.6 GB feat   288.0 MB | prompt  15602 ttft   74.1s decode  17.4 ->  21.7 tok/s tau 5.235 peak 23.37 GB parity True
+L= 16384 teacher   180.1 tok/s peak  25.6 GB feat   288.0 MB | prompt  11570 ttft   55.3s decode  17.5 ->  32.0 tok/s tau 7.778 peak 23.07 GB parity True
+L= 32768 teacher   171.8 tok/s peak  26.0 GB feat   576.0 MB | prompt  32623 ttft  166.1s decode  16.4 ->  16.7 tok/s tau 4.5 peak 25.96 GB parity True
+L= 32768 teacher   171.6 tok/s peak  26.0 GB feat   576.0 MB | prompt  31629 ttft  160.6s decode  16.5 ->  18.1 tok/s tau 4.741 peak 26.18 GB parity True
+[
+  {
+    "length": 2048,
+    "teacher_tok_s": 192.5,
+    "teacher_peak_gb": 23.32,
+    "feature_mb": 36.0,
+    "ttft_s": null,
+    "decode_tps_nospec": null,
+    "decode_tps_dspark": null,
+    "tau": null,
+    "decode_peak_gb": null
+  },
+  {
+    "length": 4096,
+    "teacher_tok_s": 188.55,
+    "teacher_peak_gb": 23.39,
+    "feature_mb": 72.0,
+    "ttft_s": null,
+    "decode_tps_nospec": null,
+    "decode_tps_dspark": null,
+    "tau": null,
+    "decode_peak_gb": null
+  },
+  {
+    "length": 8192,
+    "teacher_tok_s": 184.5,
+    "teacher_peak_gb": 25.28,
+    "feature_mb": 144.0,
+    "ttft_s": 25.23,
+    "decode_tps_nospec": 17.92,
+    "decode_tps_dspark": 22.36,
+    "tau": 7.38,
+    "decode_peak_gb": 22.17
+  },
+  {
+    "length": 16384,
+    "teacher_tok_s": 180.1,
+    "teacher_peak_gb": 25.57,
+    "feature_mb": 288.0,
+    "ttft_s": 64.68,
+    "decode_tps_nospec": 17.44,
+    "decode_tps_dspark": 26.88,
+    "tau": 6.51,
+    "decode_peak_gb": 23.37
+  },
+  {
+    "length": 32768,
+    "teacher_tok_s": 171.7,
+    "teacher_peak_gb": 26.01,
+    "feature_mb": 576.0,
+    "ttft_s": 163.37,
+    "decode_tps_nospec": 16.44,
+    "decode_tps_dspark": 17.38,
+    "tau": 4.62,
+    "decode_peak_gb": 26.18
+  }
+]
