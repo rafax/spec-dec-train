@@ -1,0 +1,16 @@
+depth 1024, median ms over 15 repeats (build = CPU graph construction)
+variant                    T=1             T=2             T=3             T=4             T=8
+full              52.5 (44.4)   122.0 (105.2)   127.7 (111.3)   137.1 (119.2)   174.0 (156.2)
+no_moe            29.6 (21.9)    85.3 (64.0)    83.7 (67.7)    91.7 (67.7)    99.7 (74.6)
+no_attn           34.8 (25.8)    61.1 (45.0)    70.5 (54.1)    79.8 (62.5)   116.4 (96.3)
+no_moe_attn       12.8 ( 5.5)    19.7 ( 6.3)    18.6 ( 5.5)    19.1 ( 7.4)    20.1 ( 6.0)
+moe_grouped               19.1            35.6            46.2            57.1            96.0
+moe_masked                19.2            42.1            57.1            72.8           138.2
+moe_gather                18.5            37.8            53.0            66.2           127.7
+
+attribution (ms): MoE = full - no_moe, attention = full - no_attn
+  T=1: full   52.5 | MoE   22.9 | attention   17.7 | rest   12.8
+  T=2: full  122.0 | MoE   36.7 | attention   60.9 | rest   19.7
+  T=3: full  127.7 | MoE   44.0 | attention   57.2 | rest   18.6
+  T=4: full  137.1 | MoE   45.4 | attention   57.3 | rest   19.1
+  T=8: full  174.0 | MoE   74.3 | attention   57.6 | rest   20.1

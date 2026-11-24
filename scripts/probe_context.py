@@ -79,6 +79,7 @@ def main():
     ap.add_argument("--survey", type=Path, default=Path("data/surveys/open_swe_v2.jsonl"))
     ap.add_argument("--lengths", type=int, nargs="+", default=[2048, 4096, 8192, 16384, 32768])
     ap.add_argument("--n-traces", type=int, default=2)
+    ap.add_argument("--traces", nargs="+", help="exact traces as <file>#<row> (overrides --n-traces)")
     ap.add_argument("--gen-tokens", type=int, default=128)
     ap.add_argument("--chunk", type=int, default=256)
     ap.add_argument("--topk", type=int, default=32)
@@ -92,15 +93,27 @@ def main():
     draft, kind, _ = (None, None, None) if args.skip_decode else rt.load_dspark(args.model)
     print("loaded", load_stats)
 
-    traces = pick_traces(read_survey(args.survey), max(args.lengths) + 1024, args.n_traces)
+    survey = read_survey(args.survey)
+    if args.traces:  # pin exact traces; the default pick depends on what the survey holds
+        by_id = {f"{r['file']}#{r['row']}": r for r in survey}
+        traces = [by_id[t] for t in args.traces]
+    else:
+        traces = pick_traces(survey, max(args.lengths) + 1024, args.n_traces)
     rendered = []
     for r in traces:
         messages, tools = messages_and_tools(load_row(r["file"], r["row"]))
         rendered.append((r, render(tokenizer, messages, tools)))
         print(f"trace {r['group']} #{r['row']}: {rendered[-1][1].n_tokens} tokens")
 
-    # Warm-up (kernel compilation) on a short prefix.
-    list(teacher_forward(model, rendered[0][1].input_ids[:512], chunk=args.chunk, topk=args.topk))
+    # Warm-up (kernel compilation) on a short prefix. Speculative decoding needs its own:
+    # the first DSpark generation in a process pays ~0.8 s of one-time setup, which turned a
+    # 1.84x run into 1.25x on a 59-token reply in runs/2026-11-24-p0-context.
+    warm = rendered[0][1].input_ids[:512]
+    list(teacher_forward(model, warm, chunk=args.chunk, topk=args.topk))
+    if draft is not None:
+        for d, k in ((None, None), (draft, kind)):
+            rt.generate(model, processor, warm, draft=d, draft_kind=k, max_tokens=32,
+                        prefill_step_size=args.chunk)
 
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -111,7 +124,7 @@ def main():
                 row["teacher"] = teacher_pass(model, rend.input_ids[:L], args.chunk, args.topk)
                 prompt = None if args.skip_decode else agent_prompt(rend, L)
                 if prompt is not None:
-                    common = dict(max_tokens=args.gen_tokens, prefill_step_size=args.chunk)
+                    common = {"max_tokens": args.gen_tokens, "prefill_step_size": args.chunk}
                     base = rt.generate(model, processor, prompt, temperature=0.0, **common)
                     spec = rt.generate(model, processor, prompt, draft=draft, draft_kind=kind,
                                        temperature=0.0, **common)

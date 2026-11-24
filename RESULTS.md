@@ -4,72 +4,116 @@ Hardware/runtime for all rows: M1 Max (24-core GPU), 64 GB, macOS 26.5, mlx 0.32
 mlx-vlm 0.8.1, `thinkingmachines/Inkling-2-Mini` @ `7a67ae2`, native NVFP4/MXFP8 target,
 BF16 DSpark. Run artifacts live under [`runs/`](runs/).
 
-Background load during these runs: Unsloth Studio's `llama-server` (Inkling 2 Mini GGUF
-Q4_K_XL) stayed loaded but **idle** the whole time. Its last request finished at 23:15 on
-2026-11-23; the first run here started at 23:26. It held ~12 GB plus a 16 GB mmapped GGUF,
-and swap stayed at ~9 GB. An idle server takes no GPU time, and mlx-vlm wires model memory
-during generation, so timings were stable: no-spec decode was 18.29 ± 0.10 tok/s (CV 0.6%)
-over 24 runs, with flat swap across each run. Acceptance, parity and data numbers don't depend on
-timing. From now on, `env.json` records any other model servers and warns when they are present.
+**Clean reruns.** The first runs (no `-rerun` suffix) shared the Mac with an idle Unsloth
+Studio `llama-server` that held ~12 GB. All timing runs were repeated with it unloaded
+(`-rerun` dirs, `other_model_servers: []`, 2.9 GB swap). Acceptance was bit-identical and
+decode speeds were within ~1–2%, so the background server did not affect the numbers.
+`env.json` now records any other model servers and warns when one is present.
 
 ## Stock DSpark vs no speculation (short coding prompts)
 
 6 single-turn coding prompts, 256 generated tokens, reasoning effort `low`, 2 repeats,
 conditions interleaved per prompt. Speedups are paired per prompt/repeat (median).
-Run: [`runs/2026-11-24-p1-block-sweep`](runs/2026-11-24-p1-block-sweep/summary.json).
+Run: [`runs/2026-11-24-p1-block-sweep-rerun`](runs/2026-11-24-p1-block-sweep-rerun/summary.json).
 
 | T | Condition | Decode tok/s | τ (tokens / target forward) | Decode speedup |
 |---|---|---:|---:|---:|
-| 0.0 | no-spec | 18.3 | n/a | 1.00 |
-| 0.0 | DSpark, block 4 | 17.2 | 2.96 | 0.94 |
-| 0.0 | DSpark, block 6 | 17.2 | 3.30 | 0.94 |
-| 0.0 | DSpark, block 8 (default) | 18.8 | 3.88 | **1.03** |
+| 0.0 | no-spec | 18.5 | n/a | 1.00 |
+| 0.0 | DSpark, block 4 | 17.1 | 2.96 | 0.93 |
+| 0.0 | DSpark, block 6 | 17.2 | 3.30 | 0.93 |
+| 0.0 | DSpark, block 8 (default) | 18.7 | 3.88 | **1.01** |
 | 0.6 | no-spec | 18.3 | n/a | 1.00 |
-| 0.6 | DSpark, block 4 | 15.7 | 2.70 | 0.86 |
-| 0.6 | DSpark, block 6 | 16.9 | 3.25 | 0.92 |
-| 0.6 | DSpark, block 8 (default) | 15.5 | 3.24 | **0.85** |
+| 0.6 | DSpark, block 4 | 15.4 | 2.70 | 0.84 |
+| 0.6 | DSpark, block 6 | 16.7 | 3.25 | 0.91 |
+| 0.6 | DSpark, block 8 (default) | 15.4 | 3.24 | **0.84** |
 
 Per-position acceptance P(accepted ≥ k), block 8:
 
 - T=0: 0.78 / 0.61 / 0.48 / 0.37 / 0.30 / 0.23 / 0.15
 - T=0.6: 0.73 / 0.52 / 0.38 / 0.28 / 0.20 / 0.14 / 0.12
 
-## Why τ≈3.9 is only break-even here
+Single-turn prompts are the drafter's worst case. On real agent turns it accepts far more
+(see below).
 
-Verify-cost probe at 1K context ([`runs/2026-11-24-p0-verify-cost`](runs/2026-11-24-p0-verify-cost/summary.json)):
+## Why verify is so expensive here: a BF16 small-batch matmul problem
 
-| Step | ms | vs plain decode (55 ms in real generation) |
-|---|---:|---:|
-| target verify, 2 tokens | 120 | 2.2× |
-| target verify, 4 tokens | 139 | 2.5× |
-| target verify, 8 tokens | 174 | 3.2× |
-| DSpark draft block | 12–22 | ~0.3× |
+Verify-cost probe at 1K context ([`runs/2026-11-24-p0-verify-cost-rerun`](runs/2026-11-24-p0-verify-cost-rerun/summary.json)):
+plain decode 55 ms/token in real generation; target verify **56 ms for 1 token, 122 ms for
+2, 137 ms for 4, 174 ms for 8**; one DSpark draft block 11–22 ms. Break-even is τ ≈ 3.1–3.9
+at block 8.
 
-Each extra verify token routes to different experts (8 of 128 per layer), so verify cost
-jumps at 2 tokens and keeps climbing. Including round overhead, **break-even on this Mac is
-τ ≈ 3.9 at block 8**. Acceptance gains translate roughly linearly above that: τ 4.9 → ~1.26×.
+The jump from 1 to 2 tokens is not the MoE. Component profile
+([`runs/2026-11-24-p0-verify-profile`](runs/2026-11-24-p0-verify-profile/summary.json),
+`scripts/profile_verify.py`, which stubs one component at a time):
+
+| Verify tokens | Full | Attention | MoE | Everything else |
+|---:|---:|---:|---:|---:|
+| 1 | 52.5 ms | 17.7 ms | 22.9 ms | 12.8 ms |
+| 2 | 122.0 ms | **60.9 ms** | 36.7 ms | 19.7 ms |
+| 8 | 174.0 ms | 57.6 ms | 74.3 ms | 20.1 ms |
+
+- Attention jumps by a fixed ~40 ms at 2 tokens, then stays flat. The fused SDPA kernel
+  itself is fine (2.2 → 2.9 ms over all 48 visits).
+- The cause is the **BF16 projections**: q/k/v/gate/o are unquantized, ~2.5 GB per token
+  over 48 layer visits. MLX runs 1 row as a GEMV at ~320 GB/s. At **2–8 rows it switches to
+  a GEMM that reaches only 57–81 GB/s**:
+
+  | Rows | `x @ W.T` (stock) | Rows as separate GEMVs |
+  |---:|---:|---:|
+  | 1 | 7.8 ms (319 GB/s) | 7.8 ms |
+  | 2 | 30.7 ms (81 GB/s) | 15.2 ms |
+  | 8 | 44.1 ms (57 GB/s) | 34.0 ms |
+
+  The same applies to the 926 MB BF16 `lm_head` and to the BF16 drafter, whose
+  8-token block reads ~1.5 GB: ~5 ms at full bandwidth, 20 ms measured.
+- MoE cost grows the way it should (more distinct experts). mlx-vlm's grouped verify kernel
+  is already the fastest of the three MoE paths (96 ms vs 128–138 ms at 8 tokens, MoE alone).
+- A crude workaround (split 2–8-row BF16 `Linear` calls into per-row GEMVs) cuts verify to
+  **82 ms at 2 tokens (1.48×), 109 ms at 4, 163 ms at 8**. Top-1 tokens are unchanged, and its
+  logit drift is smaller than the stock path's own 1-token vs 8-token drift. A proper
+  multi-row GEMV kernel, which reads each weight row once for up to 8 tokens, should bring
+  8-token verify to roughly 125 ms and the draft block to roughly 6 ms. That is an
+  estimate, not yet measured.
 
 ## Long-context agent prompts
 
-Real agent trajectories cut right before an assistant turn; greedy, 128 tokens; 2 traces per
-length ([`runs/2026-11-24-p0-context`](runs/2026-11-24-p0-context/summary.json)).
+Teacher pass (Stage 1 inner loop) over the first L tokens of 2 long traces
+([`runs/2026-11-24-p0-context-rerun`](runs/2026-11-24-p0-context-rerun/summary.json)):
 
-| Context | Teacher pass (Stage 1) tok/s | Peak mem | Features/window | TTFT | Decode no-spec → DSpark | τ |
-|---|---:|---:|---:|---:|---:|---:|
-| 2K | 192 | 23.3 GB | 36 MB | n/a | n/a | n/a |
-| 4K | 189 | 23.4 GB | 72 MB | n/a | n/a | n/a |
-| ~5K | 185 | 25.3 GB | 144 MB | 25 s | 17.9 → 22.4 | 7.4 |
-| 12–16K | 180 | 25.6 GB | 288 MB | 55–74 s | 17.4 → 26.9 | 5.2–7.8 |
-| 32K | 172 | 26.0 GB | 576 MB | 163 s | 16.4 → 17.4 | 4.5–4.7 |
+| Context | Teacher tok/s | Peak mem | Features/window |
+|---|---:|---:|---:|
+| 2K | 195 | 23.3 GB | 36 MB |
+| 4K | 183 | 25.1 GB | 72 MB |
+| 8K | 174 | 25.3 GB | 144 MB |
+| 16K | 175 | 25.5 GB | 288 MB |
+| 32K | 173 | 26.0 GB | 576 MB |
 
-- **Memory is not the constraint**: 26 GB peak at 32K.
-- **Time is**: Stage 1 runs at ~185 tok/s, about 1.5 h per 1M tokens. **Disk** costs 18 KB/token.
-- DSpark accepts far more on real agent continuations (τ 4.5–7.8) than on single-turn prompts
-  (τ 3.9), and **acceptance falls with depth**. Long-context agent data is where fine-tuning
-  has the most room.
-- Greedy parity held on all long-context runs. On short prompts, 5/6 diverged, all at
-  near-ties of 0.008–0.14 nats, where DSpark usually picked the reference argmax
-  ([`divergence.json`](runs/2026-11-23-p0-verify/divergence.json)).
+Decode on real agent turns: prompt cut right before an assistant turn, greedy, ≤128 tokens,
+one sample each. Greedy parity held on every trace.
+
+| Trace | Prompt tokens | TTFT | No-spec → DSpark tok/s | τ | Speedup |
+|---|---:|---:|---:|---:|---:|
+| sweagent | 3,168 | 17 s | 17.7 → 19.4 | 5.54 | 1.09× (first spec run, includes warm-up) |
+| sweagent | 4,580 | 23 s | 17.8 → 26.7 | 5.82 | 1.50× |
+| openhands | 5,391 | 28 s | 17.6 → 32.3 | 7.38 | 1.84× |
+| opencode* | 11,570 | 55 s | 17.5 → 32.0 | 7.78 | 1.83× |
+| sweagent | 15,459 | 78 s | 17.3 → 25.5 | 6.33 | 1.47× |
+| openhands | 15,602 | 77 s | 17.3 → 21.8 | 5.24 | 1.26× |
+| sweagent | 27,422 | 137 s | 16.6 → 27.5 | 8.00 | 1.66× |
+| opencode* | 31,629 | 161 s | 16.5 → 18.1 | 4.74 | 1.10× |
+| openhands | 32,623 | 165 s | 16.3 → 16.6 | 4.50 | 1.01× |
+
+\* From the first run ([`runs/2026-11-24-p0-context`](runs/2026-11-24-p0-context/summary.json)).
+The survey grew between runs, so the default trace pick changed; `--traces` now pins traces.
+
+- **Median 1.5× on warm agent turns (range 1.0–1.84×)**, at τ 4.5–8.0. Long-context agent
+  data is where the stock drafter already pays off, and where acceptance varies most.
+- **Warm-up artifact:** the first speculative generation in a process pays ~0.8 s of
+  one-time setup. In the first run that turned the 5,391-token openhands case into 1.25×.
+  The rerun gives 1.84×, with identical tokens and acceptance. `probe_context.py` now warms up
+  speculative decoding too; `bench.py` always did.
+- **Memory is not the constraint**: 26 GB peak at 32K. **Time is**: Stage 1 runs at
+  ~175–195 tok/s, about 1.5 h per 1M tokens. **Disk** costs 18 KB/token.
 
 ## Data: Open-SWE-Traces v2.0 under Inkling's template
 

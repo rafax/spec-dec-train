@@ -38,7 +38,7 @@ def main():
     print("drafter loaded:", draft_stats)
 
     prompts = [json.loads(line) for line in args.prompts.read_text().splitlines() if line.strip()]
-    common = dict(max_tokens=args.max_tokens, prefill_step_size=args.prefill_step_size)
+    common = {"max_tokens": args.max_tokens, "prefill_step_size": args.prefill_step_size}
 
     # Warm up kernels/caches so the first measured prompt is not penalized.
     warm = rt.render_messages(tokenizer, prompts[0]["messages"], args.reasoning_effort)

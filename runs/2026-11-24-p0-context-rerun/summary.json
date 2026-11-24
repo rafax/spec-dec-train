@@ -1,0 +1,98 @@
+{
+  "env": {
+    "timestamp": "2026-11-24T15:39:58+0100",
+    "git_sha": "41ce96ac3e2f48bb96549e8d68d9aebb6d23cc8e",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 2865.0,
+    "other_model_servers": []
+  },
+  "load": {
+    "load_s": 2.2,
+    "active_gb": 18.19,
+    "peak_gb": 18.9
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "survey": "data/surveys/open_swe_v2.jsonl",
+    "lengths": [
+      2048,
+      4096,
+      8192,
+      16384,
+      32768
+    ],
+    "n_traces": 2,
+    "gen_tokens": 128,
+    "chunk": 256,
+    "topk": 32,
+    "skip_decode": false,
+    "out": "runs/2026-11-24-p0-context-rerun"
+  },
+  "table": [
+    {
+      "length": 2048,
+      "teacher_tok_s": 194.65,
+      "teacher_peak_gb": 23.27,
+      "feature_mb": 36.0,
+      "ttft_s": null,
+      "decode_tps_nospec": null,
+      "decode_tps_dspark": null,
+      "tau": null,
+      "decode_peak_gb": null
+    },
+    {
+      "length": 4096,
+      "teacher_tok_s": 183.15,
+      "teacher_peak_gb": 25.06,
+      "feature_mb": 72.0,
+      "ttft_s": 16.75,
+      "decode_tps_nospec": 17.74,
+      "decode_tps_dspark": 19.42,
+      "tau": 5.54,
+      "decode_peak_gb": 22.04
+    },
+    {
+      "length": 8192,
+      "teacher_tok_s": 173.55,
+      "teacher_peak_gb": 25.34,
+      "feature_mb": 144.0,
+      "ttft_s": 25.42,
+      "decode_tps_nospec": 17.66,
+      "decode_tps_dspark": 29.46,
+      "tau": 6.6,
+      "decode_peak_gb": 22.26
+    },
+    {
+      "length": 16384,
+      "teacher_tok_s": 175.15,
+      "teacher_peak_gb": 25.51,
+      "feature_mb": 288.0,
+      "ttft_s": 77.17,
+      "decode_tps_nospec": 17.3,
+      "decode_tps_dspark": 23.64,
+      "tau": 5.78,
+      "decode_peak_gb": 23.7
+    },
+    {
+      "length": 32768,
+      "teacher_tok_s": 172.65,
+      "teacher_peak_gb": 26.01,
+      "feature_mb": 576.0,
+      "ttft_s": 150.9,
+      "decode_tps_nospec": 16.46,
+      "decode_tps_dspark": 22.06,
+      "tau": 6.25,
+      "decode_peak_gb": 26.35
+    }
+  ]
+}

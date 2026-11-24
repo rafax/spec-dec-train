@@ -83,7 +83,7 @@ def main():
 
     for b in range(1, 9):
         verify(b)  # warm up this shape
-        results[f"t_ver_{b}"] = timed(lambda: verify(b), args.repeats)
+        results[f"t_ver_{b}"] = timed(lambda b=b: verify(b), args.repeats)
 
     # Plain decode: sequential one-token steps on a scratch copy of the cache state.
     def decode_steps(n=args.repeats):
@@ -98,13 +98,13 @@ def main():
     # Drafter: prime its cache with the full context once, then time steady-state blocks
     # that each add 4 new context rows (≈ accepted + 1 at tau ~ 4).
     draft_cache = draft.reset(model)
-    greedy = lambda logits: mx.argmax(logits, axis=-1)  # noqa: E731
+    greedy = lambda logits: mx.argmax(logits, axis=-1)
     mx.eval(draft.draft_block(ctx[-1], hidden[:, :-4], draft_cache, 8, greedy))
     new_rows = hidden[:, -4:]
     for b in (2, 4, 8):
         mx.eval(draft.draft_block(ctx[-1], new_rows, draft_cache, b, greedy))
         results[f"t_draft_{b}"] = timed(
-            lambda: mx.eval(draft.draft_block(ctx[-1], new_rows, draft_cache, b, greedy)), args.repeats
+            lambda b=b: mx.eval(draft.draft_block(ctx[-1], new_rows, draft_cache, b, greedy)), args.repeats
         )
     results["t_dec"] = decode_steps()  # last: it advances the target cache
     env["swap_used_mb_end"] = rt.swap_used_mb()
