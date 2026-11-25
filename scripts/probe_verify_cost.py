@@ -46,8 +46,10 @@ def main():
     ap.add_argument("--acceptance", type=Path, help="summary.json with per_position_t0")
     ap.add_argument("--depth", type=int, default=1024, help="context tokens before the timed step")
     ap.add_argument("--repeats", type=int, default=15)
+    ap.add_argument("--fast-verify", action="store_true", help="2-8-row projections on specdec.fast_verify")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
+    rt.set_fast_verify(args.fast_verify)
 
     env = rt.env_info(args.model)
     env["swap_used_mb_start"] = rt.swap_used_mb()

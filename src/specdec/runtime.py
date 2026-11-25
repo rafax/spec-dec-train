@@ -44,6 +44,8 @@ def env_info(model_id: str = DEFAULT_MODEL) -> dict[str, Any]:
         chip = subprocess.check_output(["sysctl", "-n", "machdep.cpu.brand_string"], text=True).strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         chip = platform.processor()
+    from specdec import fast_verify
+
     info = mx.device_info()
     servers = other_model_servers()
     if servers:
@@ -60,12 +62,14 @@ def env_info(model_id: str = DEFAULT_MODEL) -> dict[str, Any]:
         "macos": platform.mac_ver()[0],
         "chip": chip,
         "gpu": info.get("device_name"),
+        "gpu_architecture": info.get("architecture"),
         "memory_gb": round(info.get("memory_size", 0) / 2**30, 1),
         "max_working_set_gb": round(info.get("max_recommended_working_set_size", 0) / 2**30, 1),
         "model": model_id,
         "model_revision": snapshot.name,
         "swap_used_mb": swap_used_mb(),
         "other_model_servers": servers,
+        "fast_verify": fast_verify.enabled(),
     }
 
 
@@ -105,6 +109,13 @@ def swap_used_mb() -> float | None:
         return float(out.split("used =")[1].split("M")[0])
     except (subprocess.CalledProcessError, FileNotFoundError, IndexError, ValueError):
         return None
+
+
+def set_fast_verify(on: bool) -> None:
+    """Route 2-8-row projections through specdec.fast_verify (#11). 1-row decode is unchanged."""
+    from specdec import fast_verify
+
+    (fast_verify.enable if on else fast_verify.disable)()
 
 
 def load_target(model_id: str = DEFAULT_MODEL):

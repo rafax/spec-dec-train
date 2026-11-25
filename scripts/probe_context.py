@@ -7,6 +7,7 @@ For each context length L and a few long real agent trajectories:
                   feature bytes
 * decode        - an agent prompt cut at the last assistant turn starting <= L, greedy,
                   no-spec vs DSpark: TTFT, decode tok/s, acceptance, peak memory
+                  (--fast-verify adds DSpark with specdec.fast_verify, #11)
 
 Usage:
     uv run python scripts/probe_context.py --out runs/2026-11-23-p0-context
@@ -84,6 +85,8 @@ def main():
     ap.add_argument("--chunk", type=int, default=256)
     ap.add_argument("--topk", type=int, default=32)
     ap.add_argument("--skip-decode", action="store_true")
+    ap.add_argument("--skip-teacher", action="store_true")
+    ap.add_argument("--fast-verify", action="store_true", help="also run DSpark on specdec.fast_verify")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
 
@@ -110,10 +113,15 @@ def main():
     # 1.84x run into 1.25x on a 59-token reply in runs/2026-11-24-p0-context.
     warm = rendered[0][1].input_ids[:512]
     list(teacher_forward(model, warm, chunk=args.chunk, topk=args.topk))
+    decode_conds = {"nospec": (None, False), "dspark": (draft, False)}
+    if args.fast_verify:
+        decode_conds["dspark_fast"] = (draft, True)
     if draft is not None:
-        for d, k in ((None, None), (draft, kind)):
-            rt.generate(model, processor, warm, draft=d, draft_kind=k, max_tokens=32,
-                        prefill_step_size=args.chunk)
+        for d, fast in decode_conds.values():
+            rt.set_fast_verify(fast)
+            rt.generate(model, processor, warm, draft=d, draft_kind=kind if d is not None else None,
+                        max_tokens=32, prefill_step_size=args.chunk)
+        rt.set_fast_verify(False)
 
     args.out.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -121,27 +129,39 @@ def main():
         for L in args.lengths:
             for r, rend in rendered:
                 row = {"length": L, "trace": f"{r['file']}#{r['row']}", "group": r["group"]}
-                row["teacher"] = teacher_pass(model, rend.input_ids[:L], args.chunk, args.topk)
+                if not args.skip_teacher:
+                    row["teacher"] = teacher_pass(model, rend.input_ids[:L], args.chunk, args.topk)
                 prompt = None if args.skip_decode else agent_prompt(rend, L)
                 if prompt is not None:
                     common = {"max_tokens": args.gen_tokens, "prefill_step_size": args.chunk}
-                    base = rt.generate(model, processor, prompt, temperature=0.0, **common)
-                    spec = rt.generate(model, processor, prompt, draft=draft, draft_kind=kind,
-                                       temperature=0.0, **common)
                     row["prompt_tokens"] = len(prompt)
-                    row["nospec"] = base.to_json(include_tokens=False)
-                    row["dspark"] = spec.to_json(include_tokens=False)
-                    row["greedy_parity"] = rt.first_divergence(base.tokens, spec.tokens) is None
+                    recs = {}
+                    for name, (d, fast) in decode_conds.items():
+                        rt.set_fast_verify(fast)
+                        recs[name] = rt.generate(model, processor, prompt, draft=d,
+                                                 draft_kind=kind if d is not None else None, temperature=0.0,
+                                                 **common)
+                        row[name] = recs[name].to_json(include_tokens=False)
+                    rt.set_fast_verify(False)
+                    for name in recs.keys() - {"nospec"}:
+                        parity = rt.first_divergence(recs["nospec"].tokens, recs[name].tokens) is None
+                        row["greedy_parity" + name.removeprefix("dspark")] = parity
                 f.write(json.dumps(row) + "\n")
                 f.flush()
                 rows.append(row)
-                t = row["teacher"]
-                msg = f"L={L:6d} teacher {t['tok_s']:7.1f} tok/s peak {t['peak_gb']:5.1f} GB feat {t['feature_mb']:7.1f} MB"
+                msg = f"L={L:6d}"
+                if "teacher" in row:
+                    t = row["teacher"]
+                    msg += f" teacher {t['tok_s']:7.1f} tok/s peak {t['peak_gb']:5.1f} GB feat {t['feature_mb']:7.1f} MB"
                 if "dspark" in row:
                     b, s = row["nospec"], row["dspark"]
                     msg += (f" | prompt {row['prompt_tokens']:6d} ttft {b['ttft_s']:6.1f}s"
                             f" decode {b['decode_tps']:5.1f} -> {s['decode_tps']:5.1f} tok/s"
                             f" tau {s['acceptance'].get('tau')} peak {s['peak_gb']} GB parity {row['greedy_parity']}")
+                if "dspark_fast" in row:
+                    s = row["dspark_fast"]
+                    msg += (f" | fast {s['decode_tps']:5.1f} tok/s tau {s['acceptance'].get('tau')}"
+                            f" parity {row['greedy_parity_fast']}")
                 print(msg, flush=True)
 
     def med(xs):
@@ -151,15 +171,18 @@ def main():
     table = []
     for L in args.lengths:
         rs = [r for r in rows if r["length"] == L]
+        teach = [r["teacher"] for r in rs if "teacher" in r]
         table.append({
             "length": L,
-            "teacher_tok_s": med([r["teacher"]["tok_s"] for r in rs]),
-            "teacher_peak_gb": max(r["teacher"]["peak_gb"] for r in rs),
-            "feature_mb": med([r["teacher"]["feature_mb"] for r in rs]),
+            "teacher_tok_s": med([t["tok_s"] for t in teach]),
+            "teacher_peak_gb": max([t["peak_gb"] for t in teach], default=None),
+            "feature_mb": med([t["feature_mb"] for t in teach]),
             "ttft_s": med([r["nospec"]["ttft_s"] for r in rs if "nospec" in r]),
             "decode_tps_nospec": med([r["nospec"]["decode_tps"] for r in rs if "nospec" in r]),
             "decode_tps_dspark": med([r["dspark"]["decode_tps"] for r in rs if "dspark" in r]),
             "tau": med([r["dspark"]["acceptance"].get("tau") for r in rs if "dspark" in r]),
+            "decode_tps_dspark_fast": med([r["dspark_fast"]["decode_tps"] for r in rs if "dspark_fast" in r]),
+            "tau_fast": med([r["dspark_fast"]["acceptance"].get("tau") for r in rs if "dspark_fast" in r]),
             "decode_peak_gb": max([r["dspark"]["peak_gb"] for r in rs if "dspark" in r], default=None),
         })
     rt.write_json(args.out / "summary.json", {"env": env, "load": load_stats, "settings": {

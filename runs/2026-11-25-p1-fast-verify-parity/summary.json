@@ -1,0 +1,68 @@
+{
+  "env": {
+    "timestamp": "2026-11-25T17:53:42+0100",
+    "git_sha": "62086defd867b1342ee617897532c9c0aff59e04",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "gpu_architecture": "applegpu_g13s",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 4276.12,
+    "other_model_servers": [],
+    "fast_verify": false
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "greedy": "runs/2026-11-23-p0-verify/results.jsonl",
+    "reasoning_effort": "low",
+    "stride": 32,
+    "out": "runs/2026-11-25-p1-fast-verify-parity"
+  },
+  "summary": {
+    "stock_vs_decode": {
+      "positions": 384,
+      "max_abs": 9.8871,
+      "mean_abs": 0.18055,
+      "kl_max": 0.027,
+      "kl_mean": 0.000542,
+      "argmax_agree": "382/384",
+      "disagree_ref_gaps": [
+        0.0403,
+        0.0423
+      ]
+    },
+    "fast_vs_decode": {
+      "positions": 384,
+      "max_abs": 11.3192,
+      "mean_abs": 0.17757,
+      "kl_max": 0.0296,
+      "kl_mean": 0.00056,
+      "argmax_agree": "383/384",
+      "disagree_ref_gaps": [
+        0.0423
+      ]
+    },
+    "fast_vs_stock": {
+      "positions": 384,
+      "max_abs": 11.3125,
+      "mean_abs": 0.16744,
+      "kl_max": 0.0123,
+      "kl_mean": 0.000386,
+      "argmax_agree": "383/384",
+      "disagree_ref_gaps": [
+        0.0365
+      ]
+    },
+    "kernel_calls_per_verify": {
+      "mma:8": 353.0
+    }
+  }
+}
