@@ -22,6 +22,12 @@ cp .env.example .env         # add a read-only HF token
 hf download thinkingmachines/Inkling-2-Mini   # ~20 GB
 ```
 
+On M1/M2-class GPUs, pass `--fast-verify` to the scripts, or append `+fast` to a bench
+condition (`dspark+fast`). This runs 2–8-token verify and drafting on
+`specdec.fast_verify`'s kernels instead of MLX's slow small-batch GEMM, which takes stock
+DSpark from ~1.0× to ~1.5× on short prompts and ~2× on agent turns
+([RESULTS.md](RESULTS.md#fast-verify-kernels-11)).
+
 ## Layout
 
 ```

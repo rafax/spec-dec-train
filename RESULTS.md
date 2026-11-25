@@ -4,6 +4,14 @@ Hardware/runtime for all rows: M1 Max (24-core GPU), 64 GB, macOS 26.5, mlx 0.32
 mlx-vlm 0.8.1, `thinkingmachines/Inkling-2-Mini` @ `7a67ae2`, native NVFP4/MXFP8 target,
 BF16 DSpark. Run artifacts live under [`runs/`](runs/).
 
+**Where things stand (stock DSpark drafter, no fine-tuning yet):**
+
+| Decode speedup vs no-spec | Stock mlx-vlm | With `specdec.fast_verify` (#11) |
+|---|---:|---:|
+| Short coding prompts, T=0 (block 8 / best block) | 1.04× | 1.54× / 1.68× (block 4) |
+| Short coding prompts, T=0.6 | 0.85× | 1.34× / 1.54× (block 4) |
+| Real agent turns, 3K–33K context, T=0 (median of 9) | 1.46× | **2.03×** (1.37–2.55×) |
+
 **Clean reruns.** The first runs (no `-rerun` suffix) shared the Mac with an idle Unsloth
 Studio `llama-server` that held ~12 GB. All timing runs were repeated with it unloaded
 (`-rerun` dirs, `other_model_servers: []`, 2.9 GB swap). Acceptance was bit-identical and
@@ -68,12 +76,89 @@ The jump from 1 to 2 tokens is not the MoE. Component profile
   8-token block reads ~1.5 GB: ~5 ms at full bandwidth, 20 ms measured.
 - MoE cost grows the way it should (more distinct experts). mlx-vlm's grouped verify kernel
   is already the fastest of the three MoE paths (96 ms vs 128–138 ms at 8 tokens, MoE alone).
-- A crude workaround (split 2–8-row BF16 `Linear` calls into per-row GEMVs) cuts verify to
-  **82 ms at 2 tokens (1.48×), 109 ms at 4, 163 ms at 8**. Top-1 tokens are unchanged, and its
-  logit drift is smaller than the stock path's own 1-token vs 8-token drift. A proper
-  multi-row GEMV kernel, which reads each weight row once for up to 8 tokens, should bring
-  8-token verify to roughly 125 ms and the draft block to roughly 6 ms. That is an
-  estimate, not yet measured.
+- A crude workaround (split 2–8-row BF16 `Linear` calls into per-row GEMVs) cut verify to
+  82 ms at 2 tokens, 109 ms at 4, 163 ms at 8. The kernels below replace it.
+- This is specific to older GPUs: mlx-vlm ships small-batch dense kernels, but gates them on
+  GPU generation ≥ 15 (M3 and later; this M1 Max is `applegpu_g13s`), and Inkling 2's model
+  code does not call them.
+
+## Fast verify kernels (#11)
+
+`specdec.fast_verify` computes `x @ W.T` for 2–8 rows with two Metal kernels
+(`mx.fast.metal_kernel`) that read each weight element once and accumulate in FP32:
+
+- **2–4 rows:** multi-row GEMV. A simdgroup owns 4 output rows, and each lane streams a
+  4-vector of every row per step for all input rows.
+- **5–8 rows:** 8×8 simdgroup-matrix MMA. Rows are padded to 8, and K is split over 8 simdgroups.
+
+`--fast-verify` (scripts) or `+fast` (bench conditions) patches `nn.Linear` for eligible
+calls: no bias, inference mode, 2–8 rows, BF16/FP16/FP32. That covers the target's
+attention projections, the drafter and the drafter's use of the BF16 head. It also
+replaces Inkling's verify head: stock multiplies FP32 activations by a cached **FP32 copy**
+of the 201K×2304 head (1.85 GB per call). The kernel reads the BF16 head and promotes it
+in-register instead, which is exact and reads half the bytes. One-row decode keeps MLX's
+GEMV, so no-spec numbers do not change.
+
+Microbenchmark ([`runs/2026-11-25-p1-small-matmul`](runs/2026-11-25-p1-small-matmul/summary.json),
+`scripts/bench_small_matmul.py`, real shapes, distinct weights per layer):
+
+| ms (rows = tokens) | Stock, 1 row | Stock, 2 / 4 / 8 rows | Fast, 2 / 4 / 8 rows |
+|---|---:|---:|---:|
+| Attention projections, 48 visits (2.4 GiB) | 9.3 | 33.5 / 33.8 / 34.0 | 11.3 / 11.3 / 14.8 |
+| Verify head (stock: FP32 copy; fast: BF16) | 5.6 | 11.4 / 11.5 / 11.8 | 3.0 / 3.8 / 4.9 |
+| One drafter block, incl. its head (1.3 GiB) | 4.5 | 17.4 / 16.0 / 16.6 | 4.8 / 4.7 / 6.7 |
+
+Verify and draft cost at 1K context, the same probe as above
+([`runs/2026-11-25-p1-verify-cost-fast`](runs/2026-11-25-p1-verify-cost-fast/summary.json)):
+
+| Verify tokens | Stock verify | Fast verify | Stock draft | Fast draft |
+|---:|---:|---:|---:|---:|
+| 1 | 56.0 ms | 56.5 ms | n/a | n/a |
+| 2 | 121.7 ms | **72.5 ms** | 11.2 ms | 8.3 ms |
+| 4 | 137.4 ms | **95.1 ms** | 19.8 ms | 9.8 ms |
+| 8 | 174.2 ms | **132.4 ms** | 21.9 ms | 12.9 ms |
+
+End to end on the 6 short coding prompts, interleaved in one process, with paired speedups
+([`runs/2026-11-25-p1-bench-fast`](runs/2026-11-25-p1-bench-fast/summary.json)):
+
+| T | Condition | Decode tok/s | τ | Speedup (median, min–max) |
+|---|---|---:|---:|---:|
+| 0.0 | no-spec | 18.2 | n/a | 1.00 |
+| 0.0 | DSpark (stock) | 18.9 | 3.88 | 1.04 (0.90–1.22) |
+| 0.0 | DSpark + fast | 28.0 | 3.82 | 1.54 (1.34–1.93) |
+| 0.0 | DSpark block 6 + fast | 29.0 | 3.44 | 1.61 (1.43–1.97) |
+| 0.0 | DSpark block 4 + fast | 30.2 | 2.86 | **1.68** (1.47–1.95) |
+| 0.6 | no-spec | 18.2 | n/a | 1.00 |
+| 0.6 | DSpark (stock) | 15.5 | 3.24 | 0.85 (0.74–1.19) |
+| 0.6 | DSpark + fast | 24.2 | 3.33 | 1.34 (1.13–1.76) |
+| 0.6 | DSpark block 6 + fast | 26.4 | 3.17 | 1.43 (1.26–1.96) |
+| 0.6 | DSpark block 4 + fast | 27.9 | 2.66 | **1.54** (1.28–1.91) |
+
+**Parity** ([`runs/2026-11-25-p1-fast-verify-parity`](runs/2026-11-25-p1-fast-verify-parity/summary.json),
+`scripts/check_fast_verify.py`). This compares 8-token verify logits against 8 sequential
+one-token decode steps (what plain greedy computes), at 48 blocks along the smoke prompts'
+greedy outputs, 384 positions in all:
+
+| vs. sequential decode | Stock verify | Fast verify |
+|---|---:|---:|
+| Argmax agreement | 382/384 | 383/384 |
+| Logprob gap at disagreements | 0.040, 0.042 | 0.042 |
+| Mean / max KL | 5.4e-4 / 0.027 | 5.6e-4 / 0.030 |
+| Mean \|Δlogit\| | 0.181 | 0.178 |
+
+Fast verify is as close to decode as stock verify is. Stock verify already differs from
+decode by BF16 rounding, which is why stock DSpark diverges from no-spec greedy at near-ties
+(`divergence.json`). On the long agent turns below, greedy output matched no-spec on 9/9
+prompts for both. Every verify forward routed 353 projections through the kernel: 48 visits ×
+7 attention projections, plus 16 dynamic-conv projections, plus the head. Unit tests:
+`tests/test_fast_verify.py`.
+
+**What is left in an 8-token verify (132 ms vs 56 ms for one token):** mostly the NVFP4 MoE.
+8 tokens route to many more distinct experts, and the grouped verify kernel runs well below
+bandwidth (96 ms for the MoE alone in the microbenchmark). The draft block, now 12.9 ms,
+is dominated by the drafter's sequential 7-step Markov head and small ops rather than weight
+reads. With verify cheaper, block 4 now beats block 8 on short prompts (low τ). On agent
+turns, where τ is 5–8, block 8 is probably still best, but that is not yet measured.
 
 ## Long-context agent prompts
 
@@ -89,29 +174,36 @@ Teacher pass (Stage 1 inner loop) over the first L tokens of 2 long traces
 | 32K | 173 | 26.0 GB | 576 MB |
 
 Decode on real agent turns: prompt cut right before an assistant turn, greedy, ≤128 tokens,
-one sample each. Greedy parity held on every trace.
+one sample each. The 3 traces are pinned with `--traces`, and no-spec, stock DSpark and
+DSpark + fast run back to back per prompt
+([`runs/2026-11-25-p1-context-fast`](runs/2026-11-25-p1-context-fast/summary.json)).
+Greedy output matched no-spec on 9/9 prompts for both drafter runs.
 
-| Trace | Prompt tokens | TTFT | No-spec → DSpark tok/s | τ | Speedup |
-|---|---:|---:|---:|---:|---:|
-| sweagent | 3,168 | 17 s | 17.7 → 19.4 | 5.54 | 1.09× (first spec run, includes warm-up) |
-| sweagent | 4,580 | 23 s | 17.8 → 26.7 | 5.82 | 1.50× |
-| openhands | 5,391 | 28 s | 17.6 → 32.3 | 7.38 | 1.84× |
-| opencode* | 11,570 | 55 s | 17.5 → 32.0 | 7.78 | 1.83× |
-| sweagent | 15,459 | 78 s | 17.3 → 25.5 | 6.33 | 1.47× |
-| openhands | 15,602 | 77 s | 17.3 → 21.8 | 5.24 | 1.26× |
-| sweagent | 27,422 | 137 s | 16.6 → 27.5 | 8.00 | 1.66× |
-| opencode* | 31,629 | 161 s | 16.5 → 18.1 | 4.74 | 1.10× |
-| openhands | 32,623 | 165 s | 16.3 → 16.6 | 4.50 | 1.01× |
+| Trace | Prompt tokens | TTFT | No-spec tok/s | τ (stock / fast) | Stock DSpark | DSpark + fast |
+|---|---:|---:|---:|---:|---:|---:|
+| sweagent | 3,168 | 15 s | 18.0 | 5.54 / 5.62 | 1.39× | 2.00× |
+| sweagent | 4,580 | 21 s | 18.1 | 5.82 | 1.48× | 2.14× |
+| openhands | 5,391 | 25 s | 17.9 | 7.38 | 1.81× | 2.55× |
+| opencode | 11,570 | 55 s | 17.6 | 7.78 | 1.84× | 2.53× |
+| sweagent | 15,459 | 73 s | 17.4 | 6.33 | 1.46× | 2.03× |
+| openhands | 15,602 | 74 s | 17.3 | 5.24 / 5.56 | 1.26× | 1.85× |
+| sweagent | 27,422 | 141 s | 16.4 | 8.00 | 1.72× | 2.20× |
+| opencode | 31,629 | 160 s | 16.5 | 4.74 | 1.10× | 1.50× |
+| openhands | 32,623 | 170 s | 16.4 | 4.50 | 1.01× | 1.37× |
 
-\* From the first run ([`runs/2026-11-24-p0-context`](runs/2026-11-24-p0-context/summary.json)).
-The survey grew between runs, so the default trace pick changed; `--traces` now pins traces.
-
-- **Median 1.5× on warm agent turns (range 1.0–1.84×)**, at τ 4.5–8.0. Long-context agent
-  data is where the stock drafter already pays off, and where acceptance varies most.
+- **Stock: median 1.46× (1.01–1.84×). Fast: median 2.03× (1.37–2.55×)**, at τ 4.5–8.0.
+  Long-context agent data is where the drafter pays off most, and where acceptance varies
+  most. The two ~32K turns with τ≈4.5 are the weakest, which makes them the obvious target
+  for fine-tuning.
+- The stock column reproduces the earlier runs
+  ([`p0-context-rerun`](runs/2026-11-24-p0-context-rerun/summary.json),
+  [`p0-context`](runs/2026-11-24-p0-context/summary.json)) within ±0.06×, except the
+  3,168-token case.
 - **Warm-up artifact:** the first speculative generation in a process pays ~0.8 s of
-  one-time setup. In the first run that turned the 5,391-token openhands case into 1.25×.
-  The rerun gives 1.84×, with identical tokens and acceptance. `probe_context.py` now warms up
-  speculative decoding too; `bench.py` always did.
+  one-time setup. That turned the 3,168-token case into 1.09× in the rerun, and the
+  5,391-token openhands case into 1.25× in the first run (1.39× and 1.81× here). Tokens and
+  acceptance were identical. `probe_context.py` now warms up every decode condition;
+  `bench.py` always did.
 - **Memory is not the constraint**: 26 GB peak at 32K. **Time is**: Stage 1 runs at
   ~175–195 tok/s, about 1.5 h per 1M tokens. **Disk** costs 18 KB/token.
 

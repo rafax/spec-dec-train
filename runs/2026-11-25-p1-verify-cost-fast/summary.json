@@ -1,0 +1,134 @@
+{
+  "env": {
+    "timestamp": "2026-11-25T17:55:03+0100",
+    "git_sha": "62086defd867b1342ee617897532c9c0aff59e04",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "gpu_architecture": "applegpu_g13s",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 4236.12,
+    "other_model_servers": [],
+    "fast_verify": true,
+    "swap_used_mb_start": 4236.12,
+    "swap_used_mb_end": 4236.12
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "acceptance": "runs/2026-11-23-p0-verify/summary.json",
+    "depth": 1024,
+    "repeats": 15,
+    "fast_verify": true,
+    "out": "runs/2026-11-25-p1-verify-cost-fast"
+  },
+  "timings_ms_median_min": {
+    "depth": 1024,
+    "t_ver_1": [
+      56.51020794175565,
+      55.23549998179078
+    ],
+    "t_ver_2": [
+      72.48137495480478,
+      69.79012512601912
+    ],
+    "t_ver_3": [
+      87.93858392164111,
+      80.13691706582904
+    ],
+    "t_ver_4": [
+      95.10187502019107,
+      90.48808389343321
+    ],
+    "t_ver_5": [
+      104.6021250076592,
+      103.98045787587762
+    ],
+    "t_ver_6": [
+      114.23858301714063,
+      113.07195806875825
+    ],
+    "t_ver_7": [
+      123.85062500834465,
+      122.59737495332956
+    ],
+    "t_ver_8": [
+      132.4006668291986,
+      131.7207079846412
+    ],
+    "t_draft_2": [
+      8.264666888862848,
+      8.068958995863795
+    ],
+    "t_draft_4": [
+      9.848958114162087,
+      9.393458953127265
+    ],
+    "t_draft_8": [
+      12.873749947175384,
+      12.696165824308991
+    ],
+    "t_dec": [
+      63.15412512049079,
+      61.78991706110537
+    ]
+  },
+  "cost_model": [
+    {
+      "block": 2,
+      "E_tokens": 1.777,
+      "round_ms": 80.7,
+      "pred_speedup": 1.39,
+      "breakeven_tokens": 1.28
+    },
+    {
+      "block": 3,
+      "E_tokens": 2.386,
+      "round_ms": 96.2,
+      "pred_speedup": 1.566,
+      "breakeven_tokens": 1.52
+    },
+    {
+      "block": 4,
+      "E_tokens": 2.861,
+      "round_ms": 105.0,
+      "pred_speedup": 1.722,
+      "breakeven_tokens": 1.66
+    },
+    {
+      "block": 5,
+      "E_tokens": 3.23,
+      "round_ms": 114.5,
+      "pred_speedup": 1.782,
+      "breakeven_tokens": 1.81
+    },
+    {
+      "block": 6,
+      "E_tokens": 3.525,
+      "round_ms": 124.1,
+      "pred_speedup": 1.794,
+      "breakeven_tokens": 1.96
+    },
+    {
+      "block": 7,
+      "E_tokens": 3.754,
+      "round_ms": 136.7,
+      "pred_speedup": 1.734,
+      "breakeven_tokens": 2.16
+    },
+    {
+      "block": 8,
+      "E_tokens": 3.905,
+      "round_ms": 145.3,
+      "pred_speedup": 1.698,
+      "breakeven_tokens": 2.3
+    }
+  ]
+}

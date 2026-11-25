@@ -26,8 +26,10 @@ def main():
     ap.add_argument("--max-tokens", type=int, default=256)
     ap.add_argument("--reasoning-effort", default="low")
     ap.add_argument("--prefill-step-size", type=int, default=256)
+    ap.add_argument("--fast-verify", action="store_true", help="2-8-row projections on specdec.fast_verify")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
+    rt.set_fast_verify(args.fast_verify)
 
     env = rt.env_info(args.model)
     print(json.dumps(env, indent=2))

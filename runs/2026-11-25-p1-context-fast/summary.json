@@ -1,0 +1,103 @@
+{
+  "env": {
+    "timestamp": "2026-11-25T18:20:33+0100",
+    "git_sha": "62086defd867b1342ee617897532c9c0aff59e04",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "gpu_architecture": "applegpu_g13s",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 4196.12,
+    "other_model_servers": [],
+    "fast_verify": false
+  },
+  "load": {
+    "load_s": 2.0,
+    "active_gb": 18.19,
+    "peak_gb": 18.9
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "survey": "data/surveys/open_swe_v2.jsonl",
+    "lengths": [
+      4096,
+      8192,
+      16384,
+      32768
+    ],
+    "n_traces": 2,
+    "traces": [
+      "data/sweagent/qwen35_122b/swe-rebench-v2/train-00008-of-00009.parquet#30",
+      "data/openhands/minimax_m25/swe-rebench-v2/train-00017-of-00018.parquet#1060",
+      "data/opencode/qwen38_flash_next/swe-rebench-v2/thinking-low/train-00007-of-00008.parquet#1011"
+    ],
+    "gen_tokens": 128,
+    "chunk": 256,
+    "topk": 32,
+    "skip_decode": false,
+    "skip_teacher": true,
+    "fast_verify": true,
+    "out": "runs/2026-11-25-p1-context-fast"
+  },
+  "table": [
+    {
+      "length": 4096,
+      "teacher_tok_s": null,
+      "teacher_peak_gb": null,
+      "feature_mb": null,
+      "ttft_s": 14.48,
+      "decode_tps_nospec": 18.03,
+      "decode_tps_dspark": 25.13,
+      "tau": 5.54,
+      "decode_tps_dspark_fast": 36.14,
+      "tau_fast": 5.62,
+      "decode_peak_gb": 22.13
+    },
+    {
+      "length": 8192,
+      "teacher_tok_s": null,
+      "teacher_peak_gb": null,
+      "feature_mb": null,
+      "ttft_s": 22.81,
+      "decode_tps_nospec": 17.98,
+      "decode_tps_dspark": 29.61,
+      "tau": 6.6,
+      "decode_tps_dspark_fast": 42.17,
+      "tau_fast": 6.6,
+      "decode_peak_gb": 22.26
+    },
+    {
+      "length": 16384,
+      "teacher_tok_s": null,
+      "teacher_peak_gb": null,
+      "feature_mb": null,
+      "ttft_s": 72.81,
+      "decode_tps_nospec": 17.36,
+      "decode_tps_dspark": 25.38,
+      "tau": 6.33,
+      "decode_tps_dspark_fast": 35.23,
+      "tau_fast": 6.33,
+      "decode_peak_gb": 23.49
+    },
+    {
+      "length": 32768,
+      "teacher_tok_s": null,
+      "teacher_peak_gb": null,
+      "feature_mb": null,
+      "ttft_s": 159.92,
+      "decode_tps_nospec": 16.39,
+      "decode_tps_dspark": 18.24,
+      "tau": 4.74,
+      "decode_tps_dspark_fast": 24.74,
+      "tau_fast": 4.74,
+      "decode_peak_gb": 26.35
+    }
+  ]
+}

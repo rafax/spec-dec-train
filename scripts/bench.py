@@ -5,6 +5,7 @@ Conditions:
   dspark          bundled DSpark, trained block (8)
   dspark@B        bundled DSpark with runtime block size B (1 anchor + B-1 proposals)
   <dir>[@B]       fine-tuned drafter directory (config.json + mtp.safetensors)
+  <any>+fast      same, with 2-8-row projections on specdec.fast_verify (#11)
 
 Speedups are paired: each speculative run is divided by the no-spec run of the same
 prompt / temperature / repeat, then the median is reported.
@@ -26,11 +27,13 @@ from specdec import runtime as rt
 
 
 def parse_condition(cond: str, default_model: str):
+    """-> (drafter source or None, block size or None, fast verify)"""
+    cond, fast = cond.removesuffix("+fast"), cond.endswith("+fast")
     if cond == "nospec":
-        return None, None
+        return None, None, fast
     source, _, block = cond.partition("@")
     source = default_model if source == "dspark" else source
-    return source, int(block) if block else None
+    return source, int(block) if block else None, fast
 
 
 def main():
@@ -52,7 +55,7 @@ def main():
     model, processor, load_stats = rt.load_target(args.model)
     drafters = {}
     for cond in args.conditions:
-        source, _ = parse_condition(cond, args.model)
+        source, _, _ = parse_condition(cond, args.model)
         if source and source not in drafters:
             draft, kind, _ = rt.load_dspark(source)
             drafters[source] = (draft, kind)
@@ -64,8 +67,9 @@ def main():
     # Warm-up every condition once (kernel compilation for each verify shape).
     warm = rendered[prompts[0]["id"]]
     for cond in args.conditions:
-        source, block = parse_condition(cond, args.model)
+        source, block, fast = parse_condition(cond, args.model)
         draft, kind = drafters.get(source, (None, None))
+        rt.set_fast_verify(fast)
         rt.generate(model, processor, warm, draft=draft, draft_kind=kind, draft_block_size=block,
                     max_tokens=24, prefill_step_size=args.prefill_step_size)
 
@@ -77,8 +81,9 @@ def main():
                 for p in prompts:
                     # Interleave conditions per prompt so drift (thermals) hits all equally.
                     for cond in args.conditions:
-                        source, block = parse_condition(cond, args.model)
+                        source, block, fast = parse_condition(cond, args.model)
                         draft, kind = drafters.get(source, (None, None))
+                        rt.set_fast_verify(fast)
                         rec = rt.generate(model, processor, rendered[p["id"]], draft=draft, draft_kind=kind,
                                           draft_block_size=block, temperature=temp, seed=rep, **common)
                         row = {"condition": cond, "prompt": p["id"], "temp": temp, "repeat": rep,
@@ -87,7 +92,7 @@ def main():
                         f.flush()
                         rows.append(row)
                         acc = rec.acceptance()
-                        print(f"rep{rep} T={temp} {p['id']:12s} {cond:10s} decode {rec.decode_tps:5.1f} tok/s"
+                        print(f"rep{rep} T={temp} {p['id']:12s} {cond:16s} decode {rec.decode_tps:5.1f} tok/s"
                               f" e2e {rec.e2e_tps:5.1f} tau {acc.get('tau', '-')}", flush=True)
 
     base = {(r["prompt"], r["temp"], r["repeat"]): r for r in rows if r["condition"] == "nospec"}
@@ -102,7 +107,7 @@ def main():
                 "ttft_s": round(statistics.median(r["ttft_s"] for r in rs), 3),
                 "peak_gb": max(r["peak_gb"] for r in rs),
             }
-            if cond != "nospec":
+            if parse_condition(cond, args.model)[0] is not None:
                 s["tau"] = round(statistics.median(r["acceptance"]["tau"] for r in rs), 3)
                 pairs = [r["decode_tps"] / base[(r["prompt"], r["temp"], r["repeat"])]["decode_tps"]
                          for r in rs if (r["prompt"], r["temp"], r["repeat"]) in base]

@@ -1,0 +1,200 @@
+{
+  "env": {
+    "timestamp": "2026-11-25T17:55:41+0100",
+    "git_sha": "62086defd867b1342ee617897532c9c0aff59e04",
+    "git_dirty": true,
+    "python": "3.13.17",
+    "mlx": "0.32.4",
+    "mlx_vlm": "0.8.1",
+    "macos": "26.5",
+    "chip": "Apple M1 Max",
+    "gpu": "Apple M1 Max",
+    "gpu_architecture": "applegpu_g13s",
+    "memory_gb": 64.0,
+    "max_working_set_gb": 51.8,
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "model_revision": "7a67ae2314b44ef05c87fd1d4d311c58aaeb18f6",
+    "swap_used_mb": 4236.12,
+    "other_model_servers": [],
+    "fast_verify": false,
+    "swap_used_mb_start": 4236.12,
+    "swap_used_mb_end": 4196.12
+  },
+  "load": {
+    "load_s": 2.3,
+    "active_gb": 18.19,
+    "peak_gb": 18.9
+  },
+  "settings": {
+    "model": "thinkingmachines/Inkling-2-Mini",
+    "prompts": "prompts/coding_smoke.jsonl",
+    "conditions": [
+      "nospec",
+      "dspark",
+      "dspark+fast",
+      "dspark@6+fast",
+      "dspark@4+fast"
+    ],
+    "temps": [
+      0.0,
+      0.6
+    ],
+    "repeats": 2,
+    "max_tokens": 256,
+    "reasoning_effort": "low",
+    "prefill_step_size": 256,
+    "out": "runs/2026-11-25-p1-bench-fast"
+  },
+  "summary": {
+    "T=0.0": {
+      "nospec": {
+        "n": 12,
+        "decode_tps": 18.2,
+        "e2e_tps": 17.12,
+        "ttft_s": 0.793,
+        "peak_gb": 21.16
+      },
+      "dspark": {
+        "n": 12,
+        "decode_tps": 18.89,
+        "e2e_tps": 17.9,
+        "ttft_s": 0.743,
+        "peak_gb": 21.19,
+        "tau": 3.88,
+        "paired_decode_speedup": 1.037,
+        "per_position": [
+          0.777,
+          0.609,
+          0.475,
+          0.369,
+          0.295,
+          0.229,
+          0.151
+        ]
+      },
+      "dspark+fast": {
+        "n": 12,
+        "decode_tps": 27.99,
+        "e2e_tps": 25.97,
+        "ttft_s": 0.753,
+        "peak_gb": 21.19,
+        "tau": 3.821,
+        "paired_decode_speedup": 1.538,
+        "per_position": [
+          0.789,
+          0.614,
+          0.487,
+          0.389,
+          0.293,
+          0.233,
+          0.152
+        ]
+      },
+      "dspark@6+fast": {
+        "n": 12,
+        "decode_tps": 28.99,
+        "e2e_tps": 26.95,
+        "ttft_s": 0.754,
+        "peak_gb": 21.18,
+        "tau": 3.438,
+        "paired_decode_speedup": 1.605,
+        "per_position": [
+          0.768,
+          0.6,
+          0.488,
+          0.371,
+          0.293
+        ]
+      },
+      "dspark@4+fast": {
+        "n": 12,
+        "decode_tps": 30.2,
+        "e2e_tps": 27.67,
+        "ttft_s": 0.768,
+        "peak_gb": 21.18,
+        "tau": 2.857,
+        "paired_decode_speedup": 1.684,
+        "per_position": [
+          0.786,
+          0.626,
+          0.507
+        ]
+      }
+    },
+    "T=0.6": {
+      "nospec": {
+        "n": 12,
+        "decode_tps": 18.18,
+        "e2e_tps": 17.27,
+        "ttft_s": 0.802,
+        "peak_gb": 21.16
+      },
+      "dspark": {
+        "n": 12,
+        "decode_tps": 15.54,
+        "e2e_tps": 14.93,
+        "ttft_s": 0.743,
+        "peak_gb": 21.19,
+        "tau": 3.235,
+        "paired_decode_speedup": 0.847,
+        "per_position": [
+          0.73,
+          0.523,
+          0.381,
+          0.275,
+          0.198,
+          0.143,
+          0.115
+        ]
+      },
+      "dspark+fast": {
+        "n": 12,
+        "decode_tps": 24.22,
+        "e2e_tps": 22.78,
+        "ttft_s": 0.744,
+        "peak_gb": 21.19,
+        "tau": 3.333,
+        "paired_decode_speedup": 1.336,
+        "per_position": [
+          0.752,
+          0.538,
+          0.395,
+          0.294,
+          0.227,
+          0.173,
+          0.13
+        ]
+      },
+      "dspark@6+fast": {
+        "n": 12,
+        "decode_tps": 26.41,
+        "e2e_tps": 24.59,
+        "ttft_s": 0.75,
+        "peak_gb": 21.18,
+        "tau": 3.174,
+        "paired_decode_speedup": 1.433,
+        "per_position": [
+          0.752,
+          0.559,
+          0.433,
+          0.309,
+          0.239
+        ]
+      },
+      "dspark@4+fast": {
+        "n": 12,
+        "decode_tps": 27.95,
+        "e2e_tps": 25.77,
+        "ttft_s": 0.823,
+        "peak_gb": 21.19,
+        "tau": 2.662,
+        "paired_decode_speedup": 1.537,
+        "per_position": [
+          0.759,
+          0.545,
+          0.403
+        ]
+      }
+    }
+  }
+}
